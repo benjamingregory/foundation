@@ -253,7 +253,7 @@ Plus the copy gate whenever user-facing text changed — the two `grep` commands
 
 ### Where the artifacts live
 
-Specs in `docs/superpowers/specs/`, plans in `docs/superpowers/plans/`. This skeleton's own build is the worked example: [the design spec](docs/superpowers/specs/2026-07-22-foundation-skeleton-design.md) → [the implementation plan](docs/superpowers/plans/2026-07-22-foundation-skeleton.md). The subagent-driven-development execution ledger lives in `.superpowers/sdd/` — gitignored scratch, not a deliverable. Durable findings go to `bd remember`, not to a new markdown file.
+Specs in `docs/superpowers/specs/`, plans in `docs/superpowers/plans/`, the brand brief and any brand-kit boards in `docs/brand/`. This skeleton's own build is the worked example: [the design spec](docs/superpowers/specs/2026-07-22-foundation-skeleton-design.md) → [the implementation plan](docs/superpowers/plans/2026-07-22-foundation-skeleton.md). The subagent-driven-development execution ledger lives in `.superpowers/sdd/` — gitignored scratch, not a deliverable. Durable findings go to `bd remember`, not to a new markdown file.
 
 ## Design & Copy
 
@@ -362,7 +362,7 @@ Four of these carry project state, and each one silently reverts to its stock de
 | `npx skills experimental_install` | Exactly the pinned set in [skills-lock.json](skills-lock.json) | `npx skills add <repo>` instead installs whole repos, re-adding every skill this document explains was cut — including tasteskill's theme presets and intent's duplicate planners. |
 | `/teach-impeccable` | impeccable knows the token lock and the density rules | Its passes run stock, which lean louder and more colorful than a dense productivity tool wants. |
 | `intent` in `context` mode | The project context document every other intent skill reads | `journey`, `organize`, and `articulate` each re-derive the audience and the stakes independently, and disagree. |
-| A written dial baseline for `website/` | `design-taste-frontend`'s `DESIGN_VARIANCE` / `MOTION_INTENSITY` / `VISUAL_DENSITY`, plus the accent and type family it may assume | Its § 0 re-infers all three from the brief on every invocation, so two marketing pages built a week apart don't match. Record them in `website/`'s own notes and hand them to the skill instead of letting it guess. |
+| `docs/brand/BRIEF.md` | What the product does, who for, the vibe, the accent hue, and `website/`'s `DESIGN_VARIANCE` / `MOTION_INTENSITY` / `VISUAL_DENSITY` dials | **`new-project.sh` writes this at bootstrap** — prompted on a terminal, `TODO` placeholders otherwise. Left unfilled, `design-taste-frontend` § 0 re-infers the dials on every invocation, so two marketing pages built a week apart don't match. It's also the input to project-init Step 10. |
 
 Nothing else needs initializing. Hallmark's pre-flight re-reads whatever tokens it finds on every run, and emil's four skills carry no project state at all. `brandkit` is the one skill whose natural slot is *before* project init — it decides a brand that doesn't exist yet, and `website/`'s tokens should be written from its output rather than the reverse.
 

@@ -23,6 +23,23 @@ DO_SKILLS=1
 DO_GIT=1
 DO_ENV=1
 DO_DOCTOR=1
+DO_BRAND=1
+
+# Brand profile. Empty means "ask if we have a TTY, otherwise leave a TODO in
+# the brief for project-init Step 10 to fill in."
+BRAND_DESC=""
+BRAND_AUDIENCE=""
+BRAND_VIBE=""
+ACCENT_HUE=""
+
+# design-taste-frontend's dials for website/. Its § 0 re-infers these on every
+# invocation unless they are written down, so two pages built a week apart
+# don't match. Defaults are lower than the skill's own baseline (8/6/4) because
+# DESIGN_PRINCIPLES.md's reference apps are Linear and Raycast, not an agency
+# portfolio. Override in the brief, not here.
+DIAL_VARIANCE=6
+DIAL_MOTION=4
+DIAL_DENSITY=4
 
 usage() {
   cat >&2 <<'USAGE'
@@ -38,11 +55,33 @@ options:
   --no-git      skip git init and the bootstrap commit
   --no-env      skip seeding .env.local from .env.example
   --no-doctor   skip the closing health check
+  --no-brand    skip the brand profile phase entirely
   --minimal     copy and rename only (implies all of the above)
   -h, --help    show this
+
+brand profile (optional — writes docs/brand/BRIEF.md for project-init Step 10):
+  --desc <text>       one line on what the product does
+  --audience <text>   who it is for
+  --vibe <text>       three adjectives, comma-separated
+  --accent-hue <deg>  0-360. Rotates website/'s accent off the shipped hue 260,
+                      preserving the tuned lightness/chroma in both themes.
+                      260 is the AI-purple that design-taste-frontend bans as
+                      the top generated-design tell, so anything else is an
+                      improvement. 25 warm red, 145 green, 200 cyan, 60 amber.
+
+Unset brand fields are prompted for when stdin is a terminal, and left as TODO
+in the brief otherwise. Nothing here generates images — that needs Recraft and
+a Claude session, so it belongs to project-init Step 10.
 USAGE
   exit 1
 }
+
+# Defined before the parse loop so option handlers can call die().
+bold() { printf '\033[1m%s\033[0m\n' "$1"; }
+step() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
+ok()   { printf '  \033[32m✓\033[0m %s\n' "$1"; }
+warn() { printf '  \033[33m○\033[0m %s\n' "$1"; }
+die()  { printf '  \033[31m✗\033[0m %s\n' "$1" >&2; exit 1; }
 
 while [ $# -gt 0 ]; do
   case "$1" in
@@ -51,7 +90,12 @@ while [ $# -gt 0 ]; do
     --no-git)     DO_GIT=0 ;;
     --no-env)     DO_ENV=0 ;;
     --no-doctor)  DO_DOCTOR=0 ;;
-    --minimal)    DO_INSTALL=0; DO_SKILLS=0; DO_GIT=0; DO_ENV=0; DO_DOCTOR=0 ;;
+    --no-brand)   DO_BRAND=0 ;;
+    --minimal)    DO_INSTALL=0; DO_SKILLS=0; DO_GIT=0; DO_ENV=0; DO_DOCTOR=0; DO_BRAND=0 ;;
+    --desc)        [ $# -ge 2 ] || die "--desc needs a value";        BRAND_DESC="$2";     shift ;;
+    --audience)    [ $# -ge 2 ] || die "--audience needs a value";    BRAND_AUDIENCE="$2"; shift ;;
+    --vibe)        [ $# -ge 2 ] || die "--vibe needs a value";        BRAND_VIBE="$2";     shift ;;
+    --accent-hue)  [ $# -ge 2 ] || die "--accent-hue needs a value";  ACCENT_HUE="$2";     shift ;;
     -h|--help)    usage ;;
     -*)           echo "error: unknown option $1" >&2; usage ;;
     *)
@@ -69,12 +113,6 @@ done
 SRC="$(cd "$(dirname "$0")" && pwd)"
 APPS=(web website admin)
 
-bold() { printf '\033[1m%s\033[0m\n' "$1"; }
-step() { printf '\n\033[1m==> %s\033[0m\n' "$1"; }
-ok()   { printf '  \033[32m✓\033[0m %s\n' "$1"; }
-warn() { printf '  \033[33m○\033[0m %s\n' "$1"; }
-die()  { printf '  \033[31m✗\033[0m %s\n' "$1" >&2; exit 1; }
-
 # ---------------------------------------------------------------------------
 # Phase 0 — preflight
 #
@@ -90,6 +128,20 @@ case "$NAME" in
 esac
 [ -e "$TARGET" ] && die "$TARGET already exists"
 ok "name and target look good"
+
+# Validated here rather than at use, so a typo fails before anything is copied.
+if [ -n "$ACCENT_HUE" ]; then
+  case "$ACCENT_HUE" in
+    (*[!0-9]*|"") die "--accent-hue must be a whole number 0-360, got '$ACCENT_HUE'" ;;
+  esac
+  [ "$ACCENT_HUE" -le 360 ] || die "--accent-hue must be 0-360, got '$ACCENT_HUE'"
+  # An `a && b && warn` chain would return non-zero when the guard is false,
+  # which `set -e` turns into an exit. Keep it an if.
+  if [ "$ACCENT_HUE" -ge 250 ] && [ "$ACCENT_HUE" -le 275 ]; then
+    warn "hue $ACCENT_HUE is in the blue-violet band the skeleton already ships — that is the AI-purple tell"
+  fi
+  ok "accent hue $ACCENT_HUE"
+fi
 
 command -v git >/dev/null 2>&1 || die "git not found"
 command -v rsync >/dev/null 2>&1 || die "rsync not found"
@@ -166,6 +218,104 @@ else
 fi
 
 cd "$TARGET"
+
+# ---------------------------------------------------------------------------
+# Phase 2.5 — brand profile
+#
+# The skeleton ships oklch(... 260) as website/'s accent, which is exactly the
+# AI-purple design-taste-frontend § 9 names as the top generated-design tell.
+# Shipping it unchanged is the default nobody chooses, so this phase makes
+# choosing cheap: rotate the hue, and write down the brief that project-init
+# Step 10 and the design skills would otherwise each re-infer.
+#
+# This phase generates nothing. Images need Recraft and a Claude session.
+# ---------------------------------------------------------------------------
+if [ "$DO_BRAND" -eq 1 ]; then
+  step "Brand profile"
+
+  # Prompt only on a terminal, so CI and `--minimal` runs stay non-interactive.
+  # `|| true` keeps `set -e` from killing us when read hits EOF.
+  if [ -t 0 ]; then
+    [ -n "$BRAND_DESC" ]     || { printf '  what does %s do, in one line? ' "$NAME"; read -r BRAND_DESC || true; }
+    [ -n "$BRAND_AUDIENCE" ] || { printf '  who is it for? '; read -r BRAND_AUDIENCE || true; }
+    [ -n "$BRAND_VIBE" ]     || { printf '  three adjectives for the vibe? '; read -r BRAND_VIBE || true; }
+    if [ -z "$ACCENT_HUE" ]; then
+      printf '  accent hue 0-360 (blank keeps the shipped AI-purple 260)? '
+      read -r ACCENT_HUE || true
+      if [ -n "$ACCENT_HUE" ]; then
+        case "$ACCENT_HUE" in
+          (*[!0-9]*) warn "'$ACCENT_HUE' is not a whole number — ignoring"; ACCENT_HUE="" ;;
+        esac
+      fi
+      if [ -n "$ACCENT_HUE" ] && [ "$ACCENT_HUE" -gt 360 ]; then
+        warn "$ACCENT_HUE is out of range 0-360 — ignoring"
+        ACCENT_HUE=""
+      fi
+    fi
+  fi
+
+  # Rotate the accent hue, preserving each theme's tuned lightness and chroma.
+  # Only `--accent:` and `--ring:` — `--accent-foreground:` is the near-white /
+  # near-black text that sits on the accent and must stay neutral.
+  if [ -n "$ACCENT_HUE" ] && [ -f website/app/globals.css ]; then
+    perl -pi -e "s/(--(?:accent|ring): oklch\([0-9.]+ [0-9.]+ )260\)/\${1}${ACCENT_HUE})/g" \
+      website/app/globals.css
+    ROTATED="$(grep -cE -- "--(accent|ring): oklch\([0-9.]+ [0-9.]+ ${ACCENT_HUE}\)" website/app/globals.css || true)"
+    if [ "$ROTATED" -eq 4 ]; then
+      ok "website/ accent rotated to hue $ACCENT_HUE (light + dark)"
+    else
+      warn "expected 4 token rewrites, made $ROTATED — check website/app/globals.css by hand"
+    fi
+  else
+    warn "website/ accent left at the shipped hue 260 — the AI-purple default"
+  fi
+
+  mkdir -p docs/brand
+  cat > docs/brand/BRIEF.md <<BRIEF
+# $NAME — brand brief
+
+Written by new-project.sh at bootstrap. This is the input to
+\`project-init\` Step 10 (brand kit) and the design read that
+\`design-taste-frontend\` § 0 would otherwise re-infer on every invocation.
+
+Fill in any TODO before running Step 10.
+
+## What it is
+
+- **Does:** ${BRAND_DESC:-TODO}
+- **For:** ${BRAND_AUDIENCE:-TODO}
+- **Vibe:** ${BRAND_VIBE:-TODO}
+
+## Tokens
+
+- **Accent hue:** ${ACCENT_HUE:-260 — UNCHANGED, this is the AI-purple default. Rotate it.}
+- **Type:** the shipped Geist pairing. Changing it is a Step 10 decision, wired
+  through \`next/font\` — never a \`<link>\` to Google Fonts.
+- **Do the product apps carry the brand?** TODO — \`website/\` always takes the
+  palette; \`web/\` and \`admin/\` are a separate decision. A neutral product UI
+  behind a branded marketing site is what this project's reference apps
+  (Linear, Raycast) do. Decide explicitly, do not drift into it.
+
+## Dials for \`website/\`
+
+\`design-taste-frontend\` § 1. Written down so two pages built a week apart
+match; its § 0 re-infers them per invocation otherwise.
+
+- **DESIGN_VARIANCE:** $DIAL_VARIANCE
+- **MOTION_INTENSITY:** $DIAL_MOTION
+- **VISUAL_DENSITY:** $DIAL_DENSITY
+
+Lower than the skill's own 8/6/4 baseline on purpose — DESIGN_PRINCIPLES.md's
+reference apps are Linear and Raycast, not an agency portfolio. Raise them if
+this product's marketing genuinely wants more.
+
+## Not decided here
+
+Logo, identity board, mockups. Those need Recraft and a Claude session — see
+CLAUDE.md § Recraft for the SVG path, and run \`project-init\` Step 10.
+BRIEF
+  ok "docs/brand/BRIEF.md"
+fi
 
 # ---------------------------------------------------------------------------
 # Phase 3 — env
@@ -279,9 +429,11 @@ Next, in a Claude Code session opened at $TARGET:
 
      It also finishes the setup this script cannot: authorizing the Recraft MCP
      server over OAuth, /teach-impeccable, intent's project-context pass, and —
-     if the project has no brand yet — generating a brand kit and writing it
-     into the design tokens. That last step spends Recraft credits and asks
-     first. Skipping it ships the placeholder AI-purple accent.
+     if the project has no brand yet — generating a brand kit from
+     docs/brand/BRIEF.md and writing it into the design tokens. That last step
+     spends Recraft credits and asks first.
+
+     Fill in any TODO left in docs/brand/BRIEF.md before running Step 10.
 
   2. corepack pnpm -C web db:migrate     # once DATABASE_URL is set
   3. corepack pnpm -C web dev            # http://localhost:3000

@@ -57,7 +57,16 @@ This is structurally verified — typecheck, build, and the tenancy/idempotency 
 cd ~/repos/myapp
 ```
 
-Then, from a Claude Code session in the new project, run the `project-init` skill ([.claude/skills/project-init/SKILL.md](.claude/skills/project-init/SKILL.md)) to provision Supabase (required) and the optional services (Vercel, Stripe, GitHub, Resend, Anthropic, Inngest, PostHog), and write the resulting keys into each app's `.env.local`. Or do it by hand:
+On a terminal it asks four questions about the product and its brand, and writes the answers to `docs/brand/BRIEF.md`. Pass them as flags to skip the prompts, or `--no-brand` to skip the phase:
+
+```bash
+./new-project.sh myapp ~/repos/myapp \
+  --desc "..." --audience "..." --vibe "precise, quiet, fast" --accent-hue 145
+```
+
+`--accent-hue` is worth setting. `website/` ships hue 260, a blue-violet that is exactly the "AI purple" the design skills flag as the most recognizable generated-design tell; the flag rotates it in both light and dark while preserving the tuned lightness and chroma. `./new-project.sh --help` lists the rest.
+
+Then, from a Claude Code session in the new project, run the `project-init` skill ([.claude/skills/project-init/SKILL.md](.claude/skills/project-init/SKILL.md)) to provision Supabase (required) and the optional services (Vercel, Stripe, GitHub, Resend, Anthropic, Inngest, PostHog, Recraft), write the resulting keys into each app's `.env.local`, and — if the project has no brand yet — generate a brand kit from that brief and write it into the design tokens. Or do it by hand:
 
 ```bash
 cd web

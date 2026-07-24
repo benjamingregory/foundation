@@ -193,11 +193,17 @@ The skeleton ships placeholder tokens, and the `website/` placeholder accent is 
 
 `brandkit` generates images through Recraft, which spends real credits. That is an outward, costly action, so **get explicit approval before generating anything** — say roughly how many images and that it draws on their Recraft balance. If Recraft is dark (Step 9b) this step cannot run; say so and move on rather than substituting a text-only "brand direction."
 
-### 10b. Run brandkit
+### 10b. Read the brief first
 
-`brandkit` is user-level, not pinned in `skills-lock.json` — confirm it's available before promising output. Feed it the positioning from `intent`'s context document (9c) rather than re-asking what the product is. Its output is a brand world: logo concepts, an identity board, a palette, type pairing, mockups.
+`new-project.sh` wrote **`docs/brand/BRIEF.md`** at bootstrap — what the product does, who it's for, the vibe, the accent hue, and the `website/` dial baseline. Read it before asking the user anything; most of what `brandkit` needs is already there.
 
-### 10c. Turn the output into tokens and assets
+**Resolve every `TODO` in it before generating.** Unanswered fields are the ones the script couldn't collect, and generating against a `TODO` produces a brand for a product nobody described. The one that matters most is *do the product apps carry the brand* — see 10c. If the accent hue still reads `260 — UNCHANGED`, say so plainly: that's the AI-purple default, and it's the single most recognizable tell in the finished product.
+
+### 10c. Run brandkit
+
+`brandkit` is user-level, not pinned in `skills-lock.json` — confirm it's available before promising output. Feed it the brief plus `intent`'s context document (9c) rather than re-asking what the product is. Its output is a brand world: logo concepts, an identity board, a palette, type pairing, mockups.
+
+### 10d. Turn the output into tokens and assets
 
 The generation is the easy half. This is the half that gets skipped, and without it the brand exists only as a PNG nobody references:
 
@@ -211,7 +217,7 @@ The generation is the easy half. This is the half that gets skipped, and without
 
 **Decide explicitly whether the product apps carry the brand.** `website/` owns its tokens and always takes the palette. For `web/` and `admin/`, ask: a branded product surface means editing [web/app/globals.css](web/app/globals.css), which is the one sanctioned moment to do it. A neutral product UI behind a branded marketing site is a legitimate and common choice — Linear and Raycast, this project's reference apps, both read that way. Don't apply it silently in either direction.
 
-### 10d. Record it and close the moment
+### 10e. Record it and close the moment
 
 `bd remember` the palette decision, the type pairing, and which apps carry the brand — a later session that finds a hex in `globals.css` needs to know it was deliberate. Then state plainly that the lock is now live: from here, a palette or font change is a token lifted into `globals.css` on purpose, not a design skill's default flow.
 
