@@ -3,6 +3,10 @@
     "playwright": {
       "command": "npx",
       "args": ["-y", "@playwright/mcp@0.0.78"]
+    },
+    "recraft": {
+      "type": "http",
+      "url": "https://mcp.recraft.ai/mcp"
     }
   }
 }

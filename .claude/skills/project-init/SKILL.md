@@ -150,7 +150,18 @@ Everything installs to `.agents/skills/` and symlinks into `.claude/skills/`; a 
 
 - `redesign-existing-projects` — **never invoke.** Its audit opens by replacing the font and collapsing to a single accent color, which is hard stop #4 in `web/`/`admin/`; in `website/`, `design-taste-frontend` § 11 is the better redesign path.
 - `brandkit` — only relevant *before* this step, when the brand doesn't exist yet and `website/`'s tokens are still to be written from its output.
-- `imagegen-frontend-web` — optional reference comps for a `website/` page whose direction is unsettled. Needs an image-generation tool; without one it produces nothing.
+- `imagegen-frontend-web` — optional reference comps for a `website/` page whose direction is unsettled.
+
+Both of those generate images, so both need **Recraft**, declared as an MCP server in the skeleton's `.mcp.json`. Confirm it resolves rather than assuming it does — a declared server is not an authorized one:
+
+```bash
+corepack pnpm -C web doctor    # look for "image generation (optional) — recraft MCP" in the loop-gates block
+```
+
+If the row is dark, `claude mcp add --transport http recraft https://mcp.recraft.ai/mcp`. Either way the user must run `/mcp` once to complete the OAuth flow — doctor probes `.mcp.json`, not the token, so it reports ready before anyone has authorized. Flag two things explicitly rather than letting them be discovered mid-task:
+
+- **Recraft is a paid service with two separate balances.** The MCP server spends subscription credits; the REST API spends pre-purchased API units ($1 = 1,000 units), and the API token only becomes available once that unit balance is above zero. Topping up one does nothing for the other.
+- **It is entirely optional.** Skipping it costs exactly two `website/`-scoped skills and nothing else. Don't provision it for a project with no marketing pages and no brand work.
 
 ### 9c. Run the once-per-project setup
 

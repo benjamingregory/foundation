@@ -208,6 +208,17 @@ const GROUPS: Group[] = [
       },
     ],
   },
+  {
+    title: "images (Recraft)",
+    required: false,
+    vars: [
+      {
+        name: "RECRAFT_API_TOKEN",
+        configured: () => has("RECRAFT_API_TOKEN"),
+        note: "Only for runtime image generation, which this skeleton does not ship — see CLAUDE.md § Add-on recipes. Design-time image generation goes through the Recraft MCP server instead, which uses OAuth and needs no var. Note the two balances are separate: the MCP server spends subscription credits, this token spends pre-purchased API units, and Recraft only offers the token once that unit balance is above zero.",
+      },
+    ],
+  },
 ];
 
 /** `select 1` against DATABASE_URL with a ~2s timeout, using a fresh,
@@ -301,17 +312,20 @@ const pluginInstalled = (name: string): boolean => {
   return false;
 };
 
-/** Does .mcp.json declare a Playwright server? G8's browser review needs one,
- *  and the agent's tool list is written against @playwright/mcp's browser_*
- *  names — a different Playwright MCP exposes playwright_* and won't resolve. */
-const playwrightDeclared = (): boolean => {
+/** Does .mcp.json declare a server whose key contains `name`?
+ *
+ *  Declaring a server is not the same as it being reachable: the Recraft
+ *  server authenticates over OAuth, so a declared-but-unauthorized server
+ *  reports ready here and still fails on first use. Run /mcp to authenticate.
+ *  This is a config probe, like the plugin one above, not a health check. */
+const mcpDeclared = (name: string): boolean => {
   const p = join(REPO_ROOT, ".mcp.json");
   if (!existsSync(p)) return false;
   try {
     const cfg = JSON.parse(readFileSync(p, "utf8")) as {
       mcpServers?: Record<string, unknown>;
     };
-    return Object.keys(cfg.mcpServers ?? {}).some((k) => k.includes("playwright"));
+    return Object.keys(cfg.mcpServers ?? {}).some((k) => k.includes(name));
   } catch {
     return false;
   }
@@ -375,10 +389,23 @@ const GATES: GateSpec[] = [
     fix: "npx skills add emilkowalski/skills — shipped animations get no review pass",
   },
   {
+    // The design-review agent's tool list is written against @playwright/mcp's
+    // browser_* names — a different Playwright MCP exposes playwright_* and
+    // won't resolve, so the key match is necessary but not sufficient.
     gate: "G8 browser review",
     owner: "playwright MCP",
-    ready: playwrightDeclared,
+    ready: () => mcpDeclared("playwright"),
     fix: "declare a Playwright server in .mcp.json — /design-review cannot see what actually renders, leaving only static analysis",
+  },
+  {
+    // Not a gate in the ten-gate loop: brandkit and imagegen-frontend-web are
+    // both optional and both website/-scoped. But they are the only two skills
+    // here that cannot degrade — with no image tool they produce nothing at
+    // all, which is worth reporting rather than discovering mid-task.
+    gate: "image generation (optional)",
+    owner: "recraft MCP",
+    ready: () => mcpDeclared("recraft"),
+    fix: "claude mcp add --transport http recraft https://mcp.recraft.ai/mcp, then /mcp to authorize — brandkit and imagegen-frontend-web have no image tool and produce nothing",
   },
 ];
 
