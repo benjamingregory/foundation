@@ -269,10 +269,9 @@ Four altitudes of design skill — this is the depth behind gates **G1**, **G4**
 | `wireframe` | Screen anatomy at pre-visual fidelity — what goes where and why | G2, before hallmark |
 | `articulate` | Product words — labels, errors, confirmations, empty states, onboarding | G5/G6 |
 | `include` | Accessibility as a design discipline, not a compliance pass | G1/G6 |
-| `fortify` | Designing for every real-world edge condition | G6 |
 | `measure` | Success metrics, measurement frameworks, experimentation | G9/post-ship |
 
-Five of intent's 17 are deliberately not installed. `strategize` and `philosopher` duplicate `superpowers:brainstorming`; `specify` duplicates `writing-plans` in a loop where one agent both designs and implements; `evaluate` is a fourth review pass behind `/design-review`, `/audit`, and `review-animations`; `blueprint` overlaps `journey` and `organize` with nothing yet to map. `localize`, `transpose`, and `storytelling` are absent because this project has no i18n surface, no non-web platform, and no design-presentation step. Add any of them back with `npx skills add ghaida/intent --skill <name>` if the project grows into it.
+Eight of intent's 17 are deliberately not installed. `fortify` duplicates impeccable's `/harden` outright — both are "design for every condition outside the happy path" — and impeccable is already installed at zero marginal cost. `strategize` and `philosopher` duplicate `superpowers:brainstorming`; `specify` duplicates `writing-plans` in a loop where one agent both designs and implements; `evaluate` is a fourth review pass behind `/design-review`, `/audit`, and `review-animations`; `blueprint` overlaps `journey` and `organize` with nothing yet to map. `localize`, `transpose`, and `storytelling` are absent because this project has no i18n surface, no non-web platform, and no design-presentation step. Add any of them back with `npx skills add ghaida/intent --skill <name>` if the project grows into it.
 
 **Hallmark is required for UI work, not a nicety** — gate G4. Invoke the `hallmark` skill before building a new surface, redesigning an existing one, or auditing UI you didn't write — it enforces structural variety, honest copy (no fabricated metrics or testimonials), locked design tokens, no re-drawn browser/phone chrome, and mobile verification at 320/375/414/768px. It is the structural gate: what goes where, and whether the result reads as generic.
 
@@ -327,6 +326,20 @@ Ten skills from four authors will contradict each other. These are the conflicts
 | **Copy, twice.** `articulate` designs product words; [LANGUAGE_PATTERNS.md](LANGUAGE_PATTERNS.md) constrains voice. | **They stack.** `articulate` decides what a label, error, or empty state needs to *do*; LANGUAGE_PATTERNS decides how it's allowed to *sound*. The banned words and filler openers win over any phrasing `articulate` proposes. |
 | **Accessibility, three times.** `include` (design discipline), hallmark's a11y gate (structural), `/audit` (technical). | **Sequential, not redundant** — `include` before the design exists, hallmark's gate while it's built, `/audit` after. If you only get one, `/audit` catches the most regressions. |
 | **IA, twice.** `organize` and `/critique` both examine hierarchy. | **`organize` is system-level** (navigation, taxonomy, findability across surfaces); **`/critique` is surface-level** (is the clearest thing on this screen the most important thing). |
+
+### The set is not MECE, deliberately
+
+Skills are selected by description match, not navigated as a taxonomy, so some redundancy is harmless and occasionally useful — two framings of the same surface surface different findings. What is not harmless is an unstated boundary, where two skills both fire and pull in different directions. The boundaries that need stating:
+
+| Pair | Boundary |
+|---|---|
+| `journey` / `organize` | **Temporal vs spatial.** `journey` owns the sequence a user moves through — steps, states, what happens next. `organize` owns where things live — navigation, taxonomy, findability. Both say "navigation"; only `organize` means the map. |
+| `articulate` / `/clarify` | **Author vs edit.** `articulate` decides what a label, error, or empty state should say when it doesn't exist yet. `/clarify` fixes copy that exists and reads badly. |
+| `wireframe` / `hallmark` | **Fidelity.** `wireframe` is pre-visual anatomy for a surface that doesn't exist; `hallmark` is the rendered structure and owns every gate. This ordering is imposed here — neither skill states it. |
+| `find-animation-opportunities` / `emil-design-eng` | **Sweep vs element.** FAO scans a whole surface for where motion would earn its place; emil decides and implements per element. Emil carries its own "should this animate?" framework, so for a single element it is enough on its own. |
+| `include` / hallmark / `/audit` | **Design-time, build-time, check-time** accessibility, in that order. If you only run one, `/audit` catches the most regressions. |
+
+And the gaps, so "no skill owns this" is a known fact rather than a surprise. Nothing in the skill layer covers **data and schema design, API design, backend or query performance** (impeccable's `/optimize` is explicitly frontend — loading, rendering, images, bundle size), **security review beyond `test:tenancy`**, **agent and prompt design**, or **observability**. Those are owned by the conventions above and by the subagents in `.claude/agents/` — reach for `nextjs-frontend-expert` and `mastra-workflow-architect` there, not for a design skill.
 
 Two clean results worth recording. Emil's seven skills make **zero** palette, font, or type-scale claims, so they cannot break the token lock. And their motion numbers are already this project's numbers: `ease.out = [0.23, 1, 0.32, 1]`, `ease.inOut = [0.77, 0, 0.175, 1]`, `ease.drawer = [0.32, 0.72, 0, 1]` in [web/lib/motion.ts](web/lib/motion.ts) are emil's `--ease-out` / `--ease-in-out` / `--ease-drawer` exactly; `tap = { scale: 0.97 }` is his press-feedback rule; every duration token is under his 300ms ceiling; `stagger` at 40ms sits inside his 30–80ms band. Following emil verbatim produces token-consistent code here. (`globals.css` carries the first two as `--ease-out-strong` / `--ease-in-out-strong` for CSS consumers; the drawer curve is Motion-only.)
 
