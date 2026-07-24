@@ -1,7 +1,7 @@
 ---
 name: project-init
-description: "Provisions the external service accounts a fresh copy of the foundation skeleton needs to boot — Supabase (required), plus optional Vercel, Stripe, GitHub, Resend, Anthropic, Inngest, and PostHog — and writes the resulting keys into web/.env.local and the sibling apps' .env.local files. Run once, right after new-project.sh, to take a project from cloned to running. Fires on requests to set up services/accounts, provision integrations, initialize env vars, or configure Supabase/Vercel/Stripe/etc for a new copy of this skeleton."
-version: 1.0.0
+description: "Provisions the external service accounts a fresh copy of the foundation skeleton needs to boot — Supabase (required), plus optional Vercel, Stripe, GitHub, Resend, Anthropic, Inngest, PostHog, and Recraft — writes the resulting keys into web/.env.local and the sibling apps' .env.local files, and optionally generates the project's brand kit and writes it into the design tokens. Run once, right after new-project.sh, to take a project from cloned to running. Fires on requests to set up services/accounts, provision integrations, initialize env vars, configure Supabase/Vercel/Stripe/etc, or create a brand kit, logo, or palette for a new copy of this skeleton."
+version: 1.1.0
 ---
 
 # project-init
@@ -27,8 +27,9 @@ Supabase gates everything else — `DATABASE_URL` and the Supabase URL/keys are 
 3. **Vercel** (optional, but do it early if the user wants deploys) — three projects, Root Directory, env push.
 4. **Stripe / GitHub / Resend / Anthropic / Inngest / PostHog** (all optional) — in whatever order the user wants, or skip any of them entirely.
 5. **Workflow toolchain** (one-time) — confirm superpowers and bd are live, install the pinned design skills, name the boundary on anything installed user-level, then run the four once-per-project setup steps.
-6. **Finish** — `corepack pnpm doctor` in `web/`, report what's configured vs. still missing and which slices degrade as a result.
-7. **Hand off into the loop** — file the first issues in bd and state which gate the project enters at.
+6. **Brand kit** (optional, costs credits) — only if the project has no brand yet. Generate it, then turn it into tokens and an SVG logo. This is the one sanctioned moment to set token *values*; after it, the lock is live.
+7. **Finish** — `corepack pnpm doctor` in `web/`, report what's configured vs. still missing and which slices degrade as a result.
+8. **Hand off into the loop** — file the first issues in bd and state which gate the project enters at.
 
 Full per-service command reference, including which pieces are dashboard-only and how each was verified, lives in [references/services.md](references/services.md). Read it before executing that service's step — don't reconstruct commands from memory.
 
@@ -123,7 +124,7 @@ These come with the skeleton or the user's Claude Code setup rather than an inst
 
 Installed, not vendored — the skeleton ships the pin, not the payload. `skills-lock.json` records hallmark by source and hash.
 
-**The skeleton pins a curated set, not whole repos.** `skills-lock.json` lists exactly which skills are installed — 4 of emil's 7, 9 of intent's 17, hallmark, and one skill from tasteskill. Restore them with:
+**The skeleton pins a curated set, not whole repos.** `skills-lock.json` lists exactly which skills are installed — 8 of intent's 17, 4 of emil's 7, hallmark, and 1 of tasteskill's 13, for 14 total. Restore them with:
 
 ```bash
 npx skills experimental_install
@@ -161,7 +162,7 @@ corepack pnpm -C web doctor    # look for "image generation (optional) — recra
 If the row is dark, `claude mcp add --transport http recraft https://mcp.recraft.ai/mcp`. Either way the user must run `/mcp` once to complete the OAuth flow — doctor probes `.mcp.json`, not the token, so it reports ready before anyone has authorized. Flag two things explicitly rather than letting them be discovered mid-task:
 
 - **Recraft is a paid service with two separate balances.** The MCP server spends subscription credits; the REST API spends pre-purchased API units ($1 = 1,000 units), and the API token only becomes available once that unit balance is above zero. Topping up one does nothing for the other.
-- **It is entirely optional.** Skipping it costs exactly two `website/`-scoped skills and nothing else. Don't provision it for a project with no marketing pages and no brand work.
+- **It is optional, but it costs more than two skills.** Skipping it disables `brandkit` and `imagegen-frontend-web`, *and* leaves the project with no way to generate an SVG logo or domain-specific mark — which is the use that applies to all three apps, not just `website/`. Step 10 depends on it. Fine to skip for a project that already has brand assets; say what's lost rather than skipping silently.
 
 ### 9c. Run the once-per-project setup
 
@@ -180,7 +181,41 @@ Hallmark and emil's four skills need nothing — hallmark re-reads the tokens on
 
 Once the design skills are in, say plainly that in `web/` and `admin/` the design tokens are already locked (CLAUDE.md § Design & Copy): these skills contribute structure and specifics, never a new palette or font. Hallmark's theme catalog and impeccable's color guidance are reference-only there. Full theme selection applies **only** to `website/`. This is a hard stop in CLAUDE.md rather than a preference, and it's the rule a design skill running its own default flow is most likely to break.
 
-## Step 10 — Finish
+**Step 10 is the one exception, and it is the only one.** Setting the token *values* for a project that doesn't have a brand yet happens once, here, before any surface is built. After that the lock is live.
+
+## Step 10 — Brand kit (optional)
+
+The skeleton ships placeholder tokens, and the `website/` placeholder accent is `oklch(0.55 0.16 260)` — a blue-violet that is, precisely, the AI-purple `design-taste-frontend` § 9 bans as the single most recognizable generated-design tell. Shipping it unchanged is the default outcome nobody chooses. This step replaces it deliberately.
+
+**Skip this entire step if the project already has a brand** — a logo, a palette, a typeface. Ask first; don't assume a fresh repo means a fresh brand. If they have brand assets, the work is transcribing them into tokens, not generating anything.
+
+### 10a. Gate on cost and consent
+
+`brandkit` generates images through Recraft, which spends real credits. That is an outward, costly action, so **get explicit approval before generating anything** — say roughly how many images and that it draws on their Recraft balance. If Recraft is dark (Step 9b) this step cannot run; say so and move on rather than substituting a text-only "brand direction."
+
+### 10b. Run brandkit
+
+`brandkit` is user-level, not pinned in `skills-lock.json` — confirm it's available before promising output. Feed it the positioning from `intent`'s context document (9c) rather than re-asking what the product is. Its output is a brand world: logo concepts, an identity board, a palette, type pairing, mockups.
+
+### 10c. Turn the output into tokens and assets
+
+The generation is the easy half. This is the half that gets skipped, and without it the brand exists only as a PNG nobody references:
+
+| Output | Goes to |
+|---|---|
+| Logo / wordmark | Vector, via CLAUDE.md § Recraft's SVG path — generate with a `*-vector` model or vectorize the raster for $0.01, normalize fills, then `website/public/` and `web/public/` (neither directory exists yet; create it). |
+| Palette | Token values in [website/app/globals.css](website/app/globals.css) — replace the placeholder `--accent` and the neutral ramp. Set **both** `:root` and `.dark`; that file's comment notes the two share variable names so components never branch on theme. |
+| Type pairing | `--font-sans` / `--font-mono`, wired through `next/font` — never a `<link>` to Google Fonts. |
+| Board images, mockups | `docs/brand/` — a durable reference, not a shipped asset. Not `public/`. |
+| Taglines, positioning copy | Nothing, yet. Route it through [LANGUAGE_PATTERNS.md](LANGUAGE_PATTERNS.md) before it reaches a page — brandkit writes brand-deck copy, which is exactly the register those rules exist to catch. |
+
+**Decide explicitly whether the product apps carry the brand.** `website/` owns its tokens and always takes the palette. For `web/` and `admin/`, ask: a branded product surface means editing [web/app/globals.css](web/app/globals.css), which is the one sanctioned moment to do it. A neutral product UI behind a branded marketing site is a legitimate and common choice — Linear and Raycast, this project's reference apps, both read that way. Don't apply it silently in either direction.
+
+### 10d. Record it and close the moment
+
+`bd remember` the palette decision, the type pairing, and which apps carry the brand — a later session that finds a hex in `globals.css` needs to know it was deliberate. Then state plainly that the lock is now live: from here, a palette or font change is a token lifted into `globals.css` on purpose, not a design skill's default flow.
+
+## Step 11 — Finish
 
 From `web/`:
 
@@ -190,7 +225,7 @@ corepack pnpm doctor
 
 Report its output back to the user as-is — it already groups vars by slice (required / auth / ai / jobs / billing / email / analytics) and states in each row what happens when that var is missing. Cross-reference against CLAUDE.md's env-gated degradation table for the one-line consequence of anything still unset (e.g. unset `STRIPE_SECRET_KEY` → billing routes 503; unset `RESEND_API_KEY` → `sendEmail()` no-ops; unset `ANTHROPIC_API_KEY` → chat/agent routes fail at request time, no fallback). Close with an explicit list: what's configured, what's still open, and which product slices are consequently degraded — don't just say "doctor passed" and stop.
 
-## Step 11 — Hand off into the loop
+## Step 12 — Hand off into the loop
 
 Init is the only work in this project that runs outside the loop in CLAUDE.md § How work gets done. Everything after it runs inside, so finish by putting the project on a gate instead of leaving it at a prompt.
 

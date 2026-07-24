@@ -218,7 +218,7 @@ if [ "$DO_SKILLS" -eq 1 ] && [ -f skills-lock.json ]; then
 
   # Restore from the lockfile, NOT by re-adding each source. `skills add <source>`
   # installs every skill in that repo, which would undo the curation: this project
-  # deliberately keeps 12 of intent's 17 and 4 of emil's 7. experimental_install
+  # deliberately keeps 8 of intent's 17 and 4 of emil's 7. experimental_install
   # reads skills-lock.json and restores exactly what is pinned.
   #
   # `< /dev/null` is load-bearing on every npx call here — without it the CLI can
@@ -274,8 +274,14 @@ Next, in a Claude Code session opened at $TARGET:
 
   1. Run the project-init skill. It provisions the external services —
      Supabase is required to boot; Vercel, Stripe, GitHub, Resend, Anthropic,
-     Inngest, and PostHog are optional — and writes the keys into each app's
-     .env.local. It confirms before creating any cloud resource.
+     Inngest, PostHog, and Recraft are optional — and writes the keys into each
+     app's .env.local. It confirms before creating any cloud resource.
+
+     It also finishes the setup this script cannot: authorizing the Recraft MCP
+     server over OAuth, /teach-impeccable, intent's project-context pass, and —
+     if the project has no brand yet — generating a brand kit and writing it
+     into the design tokens. That last step spends Recraft credits and asks
+     first. Skipping it ships the placeholder AI-purple accent.
 
   2. corepack pnpm -C web db:migrate     # once DATABASE_URL is set
   3. corepack pnpm -C web dev            # http://localhost:3000

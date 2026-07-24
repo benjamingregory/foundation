@@ -398,10 +398,11 @@ const GATES: GateSpec[] = [
     fix: "declare a Playwright server in .mcp.json — /design-review cannot see what actually renders, leaving only static analysis",
   },
   {
-    // Not a gate in the ten-gate loop: brandkit and imagegen-frontend-web are
-    // both optional and both website/-scoped. But they are the only two skills
-    // here that cannot degrade — with no image tool they produce nothing at
-    // all, which is worth reporting rather than discovering mid-task.
+    // Not a gate in the ten-gate loop, but reported here because it is the
+    // only tool whose absence produces nothing rather than something worse:
+    // brandkit and imagegen-frontend-web cannot degrade without it, and it is
+    // also how any app asks for an SVG logo or mark. Worth knowing up front
+    // rather than mid-task.
     gate: "image generation (optional)",
     owner: "recraft MCP",
     ready: () => mcpDeclared("recraft"),
