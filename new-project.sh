@@ -213,29 +213,22 @@ fi
 # gitignored. Fetches from GitHub over the network.
 # ---------------------------------------------------------------------------
 if [ "$DO_SKILLS" -eq 1 ] && [ -f skills-lock.json ]; then
-  step "Installing pinned design skills (fetches from GitHub)"
-  SOURCES="$(node -p '
-    const l = require("./skills-lock.json");
-    [...new Set(Object.values(l.skills || {}).map(s => s.source))].join("\n");
-  ' 2>/dev/null || true)"
-  if [ -n "$SOURCES" ]; then
-    # `< /dev/null` on every npx call is load-bearing: without it the first
-    # invocation reads the herestring feeding this loop, and sources 2..n are
-    # silently never installed. The symptom is a project where only the first
-    # source landed and doctor reports the rest of the gates dark.
-    while IFS= read -r src; do
-      [ -n "$src" ] || continue
-      printf '  %s ... ' "$src"
-      if npx -y skills@latest add "$src" --all </dev/null >/dev/null 2>&1 \
-        || npx -y skills@latest add "$src" </dev/null >/dev/null 2>&1; then
-        printf '\033[32mdone\033[0m\n'
-      else
-        printf '\033[33mfailed\033[0m\n'
-        warn "retry with: npx skills add $src"
-      fi
-    done <<< "$SOURCES"
+  PINNED="$(node -p 'Object.keys(require("./skills-lock.json").skills || {}).length' 2>/dev/null || echo "?")"
+  step "Installing $PINNED pinned design skills (fetches from GitHub)"
+
+  # Restore from the lockfile, NOT by re-adding each source. `skills add <source>`
+  # installs every skill in that repo, which would undo the curation: this project
+  # deliberately keeps 12 of intent's 17 and 4 of emil's 7. experimental_install
+  # reads skills-lock.json and restores exactly what is pinned.
+  #
+  # `< /dev/null` is load-bearing on every npx call here — without it the CLI can
+  # consume the surrounding script's stdin.
+  if npx -y skills@latest experimental_install </dev/null >/dev/null 2>&1; then
+    INSTALLED="$(ls .agents/skills 2>/dev/null | wc -l | tr -d ' ')"
+    ok "restored $INSTALLED skill(s) from skills-lock.json"
   else
-    warn "could not read sources from skills-lock.json"
+    warn "lockfile restore failed — retry with: npx skills experimental_install"
+    warn "do NOT fall back to \`skills add <source>\`; it installs whole repos and undoes the curation"
   fi
   warn "impeccable and superpowers are user-level plugins — install them separately"
 fi

@@ -123,33 +123,28 @@ These come with the skeleton or the user's Claude Code setup rather than an inst
 
 Installed, not vendored — the skeleton ships the pin, not the payload. `skills-lock.json` records hallmark by source and hash.
 
-**hallmark** (gate G4 — structure) is the expected one, and the only design skill CLAUDE.md treats as required. Install it:
+**The skeleton pins a curated set, not whole repos.** `skills-lock.json` lists exactly which skills are installed — 4 of emil's 7, 9 of intent's 17, hallmark, and one skill from tasteskill. Restore them with:
+
+```bash
+npx skills experimental_install
+```
+
+This is what `new-project.sh` runs, and it is the **only** correct command here. Do **not** reach for `npx skills add <source>`: that installs every skill in the repo and silently undoes the curation, putting back the ones CLAUDE.md § Design & Copy explains were deliberately excluded (duplicates of `brainstorming` and `writing-plans`, a fourth review pass, an i18n skill for a project with no i18n).
+
+If the lockfile is missing or you are adding a skill deliberately, install one at a time:
 
 ```bash
 npx skills add nutlope/hallmark
+npx skills add ghaida/intent --skill <name>
+npx skills add emilkowalski/skills --skill <name>
+npx skills add https://github.com/Leonxlnx/taste-skill --skill design-taste-frontend
 ```
 
-It lands in `.claude/skills/hallmark/`, which is gitignored — the lockfile stays the source of truth, and a new project doesn't re-commit ~1.3MB of skill content.
+Gates by owner: **hallmark** G4 (required for UI work), **emil-design-eng** + **find-animation-opportunities** G6, **review-animations** G8, **pick-ui-library** G5, **intent** and its siblings G1/G2, **design-taste-frontend** G4 in `website/` only.
 
-**intent** (gate G1 — UX strategy, CC0) is worth offering, especially if the project is a new product rather than a rebuild:
+Everything installs to `.agents/skills/` and symlinks into `.claude/skills/`; a second copy also lands in `agent/skills/`. All three are gitignored — `skills-lock.json` is the source of truth, so commit it after any install or removal.
 
-```bash
-npx skills add ghaida/intent --all
-```
-
-`/plugin marketplace add ghaida/intent` is the Claude Code plugin path if the user prefers it.
-
-**impeccable** (gate G6 — the `frontend-design` vocabulary plus `/critique`, `/polish`, `/animate`, `/audit`) is a user-level plugin — see [impeccable.style](https://impeccable.style). If it's already installed, run `/teach-impeccable` once so its passes know this project's design context; that one-time step is what makes G6 specific instead of generic.
-
-**emilkowalski/skills** (gate G6 — motion, plus `pick-ui-library` at G5) is seven skills in one install:
-
-```bash
-npx skills add emilkowalski/skills
-```
-
-`emil-design-eng` is the main one. The others are `find-animation-opportunities`, `animation-vocabulary`, `review-animations`, `improve-animations`, `apple-design`, and `pick-ui-library` — CLAUDE.md § Design & Copy maps each to its gate. Install them together; they're small and the gates reference them by name.
-
-Everything installs to `.agents/skills/` and symlinks into `.claude/skills/`, both gitignored. `skills-lock.json` is the source of truth — after any install, commit the updated lockfile so the next copy of this project gets the same pins.
+**impeccable** (gate G6 — the `frontend-design` vocabulary plus `/critique`, `/polish`, `/animate`, `/audit`) and **superpowers** (G2/G3/G5/G8/G9) are user-level plugins, not project installs — see [impeccable.style](https://impeccable.style). If impeccable is present, run `/teach-impeccable` once so its passes know this project's design context.
 
 ### 9c. State the token lock
 

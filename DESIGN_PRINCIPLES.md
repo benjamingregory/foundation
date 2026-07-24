@@ -24,7 +24,7 @@ Split by altitude, and by *when in the loop* they fire — see [CLAUDE.md § How
 | **`emil-design-eng`** | G6 | *How it moves* — animation, transitions, hover/press feedback, popovers, drawers, toasts, gesture handling. | Deciding page structure or what a section contains. |
 | **`find-animation-opportunities`** | G6, first | Deciding where motion earns its place — and what to leave still. | Implementing the motion once decided. |
 | **`review-animations`** | G8 | A strict pass over motion that already shipped. | Anything before the motion exists. |
-| **`improve-animations`** | Rhythm | A codebase-wide animation audit returning prioritized plans. File each as a bd issue. | A single surface. That's `/critique` plus emil. |
+| **`design-taste-frontend`** | G4, `website/` only | Page-level marketing work. Its own scope excludes dashboards, product UI, admin panels, and data tables — never invoke it in `web/` or `admin/`. | Components anywhere — it has no component path. That's hallmark. |
 | **`pick-ui-library`** | G5 | Choosing a UI dependency, after checking `components/ui/` and finding nothing that fits. | Reaching past a Base UI or shadcn primitive that already exists. |
 
 Most UI tasks run intent (if new) → hallmark → build → impeccable → emil. All of them defer to this document where they conflict.
@@ -47,7 +47,7 @@ Its structural discipline, its slop/a11y/responsive gates, and its honesty rules
 - No new palettes, no new fonts, no unpaired light/dark tokens (see § Light + dark theming below).
 - Reach for `components/ui/` (Base UI + shadcn) before hallmark builds a primitive from scratch.
 - Where hallmark's page-level apparatus (macrostructure, hero enrichment, footer archetypes) collides with the density and progressive-disclosure rules in this document, **this document wins**. Most in-app work is component-scope — hallmark's tighter flow — not page-scope.
-- Hallmark's **full** design flow, theme selection included, applies only to the standalone marketing site in [website/](website/): separate app, separate tokens, no locked-palette constraint.
+- In [website/](website/) — separate app, separate tokens, no locked-palette constraint — **page-level** work goes to `design-taste-frontend`, whose only domain is landing pages. Hallmark still owns **component-level** work there (tasteskill has no component path), and owns `web/` and `admin/` at every scope.
 
 ---
 
@@ -266,10 +266,8 @@ View state that survives refresh lives in the URL (`?view=`, `?filter=`, `?sort=
 Motion has its own three-step sequence inside G6, and running it out of order is how UIs end up animating things that should have stayed still.
 
 1. **`find-animation-opportunities`** — decide *where* motion earns its place, and what to leave alone. Run this before animating anything, not after.
-2. **`emil-design-eng`** — implement it. The skill encodes Emil Kowalski's philosophy on UI polish, easing curves, durations, spring physics, gesture handling, performance, and accessibility, including the decision framework (should this animate? what purpose? what easing? how fast?). Reach for **`animation-vocabulary`** when a motion note keeps coming back wrong — usually the words were imprecise, not the implementation.
+2. **`emil-design-eng`** — implement it. The skill encodes Emil Kowalski's philosophy on UI polish, easing curves, durations, spring physics, gesture handling, performance, and accessibility, including the decision framework (should this animate? what purpose? what easing? how fast?).
 3. **`review-animations`** — a strict review pass at G8. It provides a Before/After table format that surfaces the common failures (`transition: all`, `scale(0)` entries, `ease-in` on UI, wrong `transform-origin`).
-
-**`improve-animations`** is the periodic version: it audits every animation in the codebase and returns prioritized, self-contained plans. File each plan as its own bd issue rather than executing the whole set in one pass.
 
 ### foundation addendum: use Motion, not CSS-only transitions, and never `framer-motion`
 
@@ -295,11 +293,11 @@ The skill's examples often show CSS — translate the principles into Motion equ
 
 Use the named springs in [web/lib/motion.ts](web/lib/motion.ts) — `spring.snap`, `spring.smooth`, `spring.soft`, `spring.pop`, `spring.panel`. They're `{ stiffness, damping }`; `emil-design-eng` recommends the `{ duration, bounce }` form as easier to reason about, and it is, but a codebase carrying both conventions is worse than either. Add a new named spring to the token file rather than inlining a config.
 
-Springs are for **gesture, drag, and interruptible** motion, plus deliberate decorative touches. Discrete UI transitions — dropdowns, tooltips, dialogs — use `duration` + `ease` from the same file. `apple-design` reads as spring-first because its subject is gesture-driven surfaces; scoped that way it agrees with emil rather than contradicting him.
+Springs are for **gesture, drag, and interruptible** motion, plus deliberate decorative touches. Discrete UI transitions — dropdowns, tooltips, dialogs — use `duration` + `ease` from the same file. Emil scopes springs this way deliberately; a spring on a dropdown is a decision to justify, not a default.
 
 ### Translucency and materials
 
-`apple-design` § 12 treats translucent materials as a hierarchy signal. **Use it sparingly here.** This is a dense productivity tool with Linear and Raycast as reference apps, not a consumer OS surface: translucency over a data-dense background costs legibility, and legibility is the whole point of § 1. Backdrop blur is acceptable on a modal scrim or a floating command surface, where there's a real depth relationship to convey. It is not a default treatment for cards, sidebars, or table rows. Apple's own rule holds regardless — never stack one translucent surface on another.
+Translucent materials read as a hierarchy signal in consumer OS design. **Use them sparingly here.** This is a dense productivity tool with Linear and Raycast as reference apps, not a consumer OS surface: translucency over a data-dense background costs legibility, and legibility is the whole point of § 1. Backdrop blur is acceptable on a modal scrim or a floating command surface, where there's a real depth relationship to convey. It is not a default treatment for cards, sidebars, or table rows. And never stack one translucent surface on another — legibility collapses.
 
 **Exception, deliberate:** [components/ui/skeleton.tsx](web/components/ui/skeleton.tsx) is CSS-only on purpose — it sits on the critical path of nearly every route's loading state, and pulling Motion into that path would ship the whole animation library on the first paint of a route that hasn't loaded anything yet. Don't "fix" it to use Motion; don't use it as precedent for other components.
 
