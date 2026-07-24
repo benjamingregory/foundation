@@ -1,48 +1,64 @@
 ---
-allowed-tools: Grep, LS, Read, Edit, MultiEdit, Write, NotebookEdit, WebFetch, TodoWrite, WebSearch, BashOutput, KillBash, ListMcpResourcesTool, ReadMcpResourceTool, mcp__context7__resolve-library-id, mcp__context7__get-library-docs, mcp__playwright__browser_close, mcp__playwright__browser_resize, mcp__playwright__browser_console_messages, mcp__playwright__browser_handle_dialog, mcp__playwright__browser_evaluate, mcp__playwright__browser_file_upload, mcp__playwright__browser_install, mcp__playwright__browser_press_key, mcp__playwright__browser_type, mcp__playwright__browser_navigate, mcp__playwright__browser_navigate_back, mcp__playwright__browser_navigate_forward, mcp__playwright__browser_network_requests, mcp__playwright__browser_take_screenshot, mcp__playwright__browser_snapshot, mcp__playwright__browser_click, mcp__playwright__browser_drag, mcp__playwright__browser_hover, mcp__playwright__browser_select_option, mcp__playwright__browser_tab_list, mcp__playwright__browser_tab_new, mcp__playwright__browser_tab_select, mcp__playwright__browser_tab_close, mcp__playwright__browser_wait_for, Bash, Glob
 description: Complete a design review of the pending changes on the current branch
 ---
 
-You are an elite design review specialist with deep expertise in user experience, visual design, accessibility, and front-end implementation. You conduct world-class design reviews following the rigorous standards of top Silicon Valley companies like Stripe, Airbnb, and Linear.
+Gate G8's UI review. Dispatch the **`design-review`** subagent
+([.claude/agents/design-review-agent.md](../agents/design-review-agent.md)) — it owns the
+methodology, the review phases, and the Playwright tool set. This command only gathers the
+change context and hands it over, so the two never drift apart.
+
+BRANCH:
+
+```
+!`git branch --show-current`
+```
+
+BASE (falls back to the root commit when there is no remote):
+
+```
+!`git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || git rev-parse --verify -q origin/HEAD || git rev-list --max-parents=0 HEAD | tail -1`
+```
 
 GIT STATUS:
 
 ```
-!`git status`
+!`git status --short`
 ```
 
 FILES MODIFIED:
 
 ```
-!`git diff --name-only origin/HEAD...`
+!`BASE=$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || git rev-parse --verify -q origin/HEAD || git rev-list --max-parents=0 HEAD | tail -1); git diff --name-only "$BASE"...HEAD`
 ```
 
 COMMITS:
 
 ```
-!`git log --no-decorate origin/HEAD...`
+!`BASE=$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || git rev-parse --verify -q origin/HEAD || git rev-list --max-parents=0 HEAD | tail -1); git log --no-decorate "$BASE"..HEAD`
 ```
 
 DIFF CONTENT:
 
 ```
-!`git diff --merge-base origin/HEAD`
+!`BASE=$(git rev-parse --abbrev-ref --symbolic-full-name '@{upstream}' 2>/dev/null || git rev-parse --verify -q origin/HEAD || git rev-list --max-parents=0 HEAD | tail -1); git diff "$BASE"...HEAD`
 ```
 
-Review the complete diff above. This contains all code changes in the PR.
-
-
 OBJECTIVE:
-Use the design-review agent to comprehensively review the complete diff above, and reply back to the user with the design and review of the report. Your final reply must contain the markdown report and nothing else.
 
-Follow and implement the design principles and style guide located in the root [DESIGN_PRINCIPLES.md](../../DESIGN_PRINCIPLES.md) and [LANGUAGE_PATTERNS.md](../../LANGUAGE_PATTERNS.md) docs.
+Dispatch the `design-review` subagent against the diff above. Your final reply must contain
+its markdown report and nothing else.
 
-IMPORTANT - Environment Variables:
-When using Playwright MCP tools for visual testing, ensure these environment variables are available:
+The review is bound by [DESIGN_PRINCIPLES.md](../../DESIGN_PRINCIPLES.md) and
+[LANGUAGE_PATTERNS.md](../../LANGUAGE_PATTERNS.md), which override any skill's page-level
+defaults — see CLAUDE.md § When skills disagree.
 
-- TEST_USER_EMAIL: Email for test authentication
-- TEST_USER_PASSWORD: Password for test authentication
-- NEXT_PUBLIC_SUPABASE_URL: Supabase project URL
-- NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: Supabase publishable key
+PREREQUISITES — check these before dispatching, and say so plainly if one is missing rather
+than reviewing statically and calling it a design review:
 
-These should be loaded from `web/.env.local` for authenticated page testing.
+- **A running dev server.** `corepack pnpm -C web dev` (port 3000). This review's whole value
+  is the live environment; static-only is what `/audit` is for.
+- **The Playwright MCP server**, declared in [.mcp.json](../../.mcp.json) at the repo root.
+  It exposes `browser_*` tools. If the available tools are named `playwright_*` instead, a
+  different Playwright MCP is connected and the agent's tool list will not resolve.
+- **Auth env for any signed-in surface**, loaded from `web/.env.local`: `TEST_USER_EMAIL`,
+  `TEST_USER_PASSWORD`, `NEXT_PUBLIC_SUPABASE_URL`, `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`.
