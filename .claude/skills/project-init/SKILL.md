@@ -26,7 +26,7 @@ Supabase gates everything else — `DATABASE_URL` and the Supabase URL/keys are 
 2. **Supabase** (required) — project, keys, `DATABASE_URL`, then `corepack pnpm db:migrate` from `web/`.
 3. **Vercel** (optional, but do it early if the user wants deploys) — three projects, Root Directory, env push.
 4. **Stripe / GitHub / Resend / Anthropic / Inngest / PostHog** (all optional) — in whatever order the user wants, or skip any of them entirely.
-5. **Workflow toolchain** (one-time) — confirm superpowers and bd are live, install the design skills, run `/teach-impeccable`.
+5. **Workflow toolchain** (one-time) — confirm superpowers and bd are live, install the pinned design skills, name the boundary on anything installed user-level, then run the four once-per-project setup steps.
 6. **Finish** — `corepack pnpm doctor` in `web/`, report what's configured vs. still missing and which slices degrade as a result.
 7. **Hand off into the loop** — file the first issues in bd and state which gate the project enters at.
 
@@ -144,9 +144,28 @@ Gates by owner: **hallmark** G4 (required for UI work), **emil-design-eng** + **
 
 Everything installs to `.agents/skills/` and symlinks into `.claude/skills/`; a second copy also lands in `agent/skills/`. All three are gitignored — `skills-lock.json` is the source of truth, so commit it after any install or removal.
 
-**impeccable** (gate G6 — the `frontend-design` vocabulary plus `/critique`, `/polish`, `/animate`, `/audit`) and **superpowers** (G2/G3/G5/G8/G9) are user-level plugins, not project installs — see [impeccable.style](https://impeccable.style). If impeccable is present, run `/teach-impeccable` once so its passes know this project's design context.
+**impeccable** (gate G6 — the `frontend-design` vocabulary plus `/critique`, `/polish`, `/animate`, `/audit`) and **superpowers** (G2/G3/G5/G8/G9) are user-level plugins, not project installs — see [impeccable.style](https://impeccable.style).
 
-### 9c. State the token lock
+**Then check what's already installed user-level.** Anything in `~/.claude/skills/` is reachable here regardless of this project's lockfile, and three of tasteskill's siblings commonly are: `brandkit`, `imagegen-frontend-web`, and `redesign-existing-projects`. Don't uninstall the user's skills — just name the boundary out loud, because the lockfile can't enforce it (CLAUDE.md § The tasteskill family):
+
+- `redesign-existing-projects` — **never invoke.** Its audit opens by replacing the font and collapsing to a single accent color, which is hard stop #4 in `web/`/`admin/`; in `website/`, `design-taste-frontend` § 11 is the better redesign path.
+- `brandkit` — only relevant *before* this step, when the brand doesn't exist yet and `website/`'s tokens are still to be written from its output.
+- `imagegen-frontend-web` — optional reference comps for a `website/` page whose direction is unsettled. Needs an image-generation tool; without one it produces nothing.
+
+### 9c. Run the once-per-project setup
+
+Four steps carry project state. Each one silently reverts to a stock default if skipped, so run them here rather than discovering the gap at G4. See CLAUDE.md § Once per project.
+
+| Step | Establishes | Notes |
+|---|---|---|
+| `npx skills experimental_install` | The pinned set | Already covered in 9b. This is the step that must not be `npx skills add <repo>`. |
+| `/teach-impeccable` | impeccable knows the token lock and the density rules | Skip silently if impeccable isn't installed, but say that G6 will run on stock defaults. |
+| `intent` in `context` mode | The project context document `journey`, `organize`, and `articulate` all read | Needs the user in the loop — it asks what's being designed and for whom. If they'd rather do it with the first real feature, file a bd issue rather than dropping it. |
+| A written dial baseline for `website/` | `design-taste-frontend`'s `DESIGN_VARIANCE` / `MOTION_INTENSITY` / `VISUAL_DENSITY` | Only once `website/` has a direction. Record it in the project's own notes and hand it to the skill; otherwise its § 0 re-infers all three per invocation and two pages built a week apart won't match. |
+
+Hallmark and emil's four skills need nothing — hallmark re-reads the tokens on every run, and emil's carry no project state.
+
+### 9d. State the token lock
 
 Once the design skills are in, say plainly that in `web/` and `admin/` the design tokens are already locked (CLAUDE.md § Design & Copy): these skills contribute structure and specifics, never a new palette or font. Hallmark's theme catalog and impeccable's color guidance are reference-only there. Full theme selection applies **only** to `website/`. This is a hard stop in CLAUDE.md rather than a preference, and it's the rule a design skill running its own default flow is most likely to break.
 

@@ -172,7 +172,7 @@ This project is wired for a specific operating loop. The skills, plugins, subage
 | Structure | **hallmark** | *What goes where.* Layout, hierarchy, section rhythm, slop/honesty/a11y/responsive gates. Required for UI work. | `npx skills add nutlope/hallmark` — pinned in [skills-lock.json](skills-lock.json) |
 | Specifics + passes | **impeccable** | The design vocabulary (`frontend-design`), plus `/audit`, `/critique`, `/polish`, `/animate` as focused passes over a surface that already exists. | User-level plugin, [impeccable.style](https://impeccable.style) |
 | Motion + taste | **emilkowalski/skills** (4 of 7) | *How it moves,* and which library it's built on. `emil-design-eng` is the main one; see § Design & Copy. | `npx skills add emilkowalski/skills` |
-| Marketing pages | **design-taste-frontend** | Page-level work in `website/` **only** — its own scope excludes product UI. | `npx skills add https://github.com/Leonxlnx/taste-skill --skill design-taste-frontend` |
+| Marketing pages | **design-taste-frontend** | Page-level work in `website/` **only** — its own scope excludes product UI. One of tasteskill's 14 skills; the other 13 are out, and three of them are commonly installed user-level anyway. See § The tasteskill family. | `npx skills add https://github.com/Leonxlnx/taste-skill --skill design-taste-frontend` |
 | Bootstrap | **project-init** | One-time external-service provisioning for a fresh copy of the skeleton. | Vendored (`.claude/skills/`) — the only vendored skill |
 | Domain depth | **subagents** | `nextjs-frontend-expert` (App Router / Tailwind / Base UI / Drizzle / Supabase), `mastra-workflow-architect` (agents, workflows, scoped tools), `web-research-analyst` (external research), `design-review` (live-environment UI review via Playwright). | Vendored (`.claude/agents/`) |
 | Local commands | **slash commands** | `/design-review`, `/think`, `/visualize`, `/style`, `/update`, `/upgrade`, `/issues`, `/work`. | Vendored (`.claude/commands/`) |
@@ -288,11 +288,19 @@ Eight of intent's 17 are deliberately not installed. `fortify` duplicates impecc
 | `/colorize` | **`website/` only** | Its purpose is adding new color. In `web/`/`admin/` that breaks the token lock. |
 | `/bolder`, `/delight` | **`website/` only** | They amplify visual interest. This is a dense productivity tool — `/distill` and `/quieter` are the right direction here. |
 
-Run `/teach-impeccable` once per project so its passes know the token lock and the density rules; without it, the defaults above bite harder.
+Run `/teach-impeccable` once per project so its passes know the token lock and the density rules; without it, the defaults above bite harder. See § Once per project for the rest of the one-time setup.
 
-**`design-taste-frontend` (tasteskill) owns page-level work in `website/` only** — [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill), MIT, installed as a single skill rather than the repo (its `brutalist-skill` / `minimalist-skill` / `soft-skill` presets are exactly the theme-selection category this project disables). It is scoped by its own § 13 to landing pages, portfolios, and redesigns, and explicitly **not** to dashboards, dense product UI, admin panels, data tables, or multi-step wizards — which is a description of `web/` and `admin/`. Never invoke it there.
+**The tasteskill family — one of fourteen is pinned, and three more are probably already on your machine.** [Leonxlnx/taste-skill](https://github.com/Leonxlnx/taste-skill), MIT, ships 14 entries under `skills/` — 13 skills and an `llms.txt`. [skills-lock.json](skills-lock.json) pins exactly one of them, `design-taste-frontend` (upstream `taste-skill`). The install command is per-skill for a reason: `npx skills add https://github.com/Leonxlnx/taste-skill` with no `--skill` pulls in all of them and silently undoes the curation. But `brandkit`, `imagegen-frontend-web`, and `redesign-existing-projects` are commonly installed at the **user** level, where they're reachable in every project regardless of this lockfile — so their boundary has to be stated rather than assumed.
 
-Its edge over hallmark on marketing pages is the front half: a stated one-line "design read" before generating (*page kind, audience, vibe, leaning*), one clarifying question rather than a dump, and an explicit anti-default list (AI-purple gradients, centered hero over dark mesh, three equal feature cards, glassmorphism-on-everything, Inter + slate-900). Note it *does* name typefaces and map briefs to design systems — fine in `website/`, which owns its tokens; fatal in the product apps.
+| Skill | Verdict | Fires when |
+|---|---|---|
+| **`design-taste-frontend`** | **Pinned.** G4, `website/` only | Page-level work on a marketing page — a new page or a redesign of one. Its own § 11 carries the redesign protocol (preserve-vs-overhaul mode detection, brand-token extraction, SEO baseline, a never-change-silently list covering slugs, nav labels, and form field names), so `website/` redesigns stay here too. Never in `web/` or `admin/`. |
+| **`brandkit`** | **Pre-project only** | The brand doesn't exist yet — logo system, identity board, visual world. That's a decision made *before* `website/`'s tokens are written, not a step inside the loop; once tokens exist its output competes with them. Generates images, so it needs an image-generation tool — Claude Code has none built in. |
+| **`imagegen-frontend-web`** | **`website/` only, optional, before G4** | Per-section reference comps for a marketing page whose direction is genuinely unsettled — one horizontal image per section, deliberately not one tall board. The output is a reference for the build, never the spec; tokens still come from `website/`'s own CSS. Also needs an image-generation tool. Never for `web/`/`admin/` — its entire vocabulary is hero, CTA, and landing section. |
+| **`redesign-existing-projects`** | **Don't** | Cut on both sides. In `web/`/`admin/` its audit opens with "replace the font" and "pick one accent color, remove the rest" — hard stop #4, stated as a fix rather than a suggestion. In `website/`, `design-taste-frontend` § 11 is the better redesign path: it detects the mode, extracts existing brand tokens before recoloring, and treats SEO migration as the top risk, none of which this one does. To audit UI you inherited, use `/audit` (technical) or hallmark's audit mode (structural). |
+| The other ten | **Not installed, don't add** | `brutalist-skill` / `minimalist-skill` / `soft-skill` are theme presets — exactly the theme-selection category this project disables. `taste-skill-v1` is the superseded version of the pinned skill. `gpt-tasteskill` and `image-to-code-skill` retarget the same material at other harnesses (GPT, Codex) and mandate GSAP-heavy and image-first workflows this project doesn't run. `stitch-skill` emits a `DESIGN.md` for Google Stitch; `imagegen-frontend-mobile` targets native app screens; `output-skill` is a generic anti-truncation prompt override; `llms.txt` isn't a skill. |
+
+`design-taste-frontend`'s edge over hallmark on marketing pages is the front half: a stated one-line "design read" before generating (*page kind, audience, vibe, leaning*), one clarifying question rather than a dump, and an explicit anti-default list (AI-purple gradients, centered hero over dark mesh, three equal feature cards, glassmorphism-on-everything, Inter + slate-900). Its § 14 pre-flight is a ~60-box gate covering theme lock, accent consistency, eyebrow count, and the em-dash ban. Note it *does* name typefaces and map briefs to design systems — fine in `website/`, which owns its tokens; fatal in the product apps.
 
 **Splitting `website/` between the two, since both do structure:** page-level work there goes to `design-taste-frontend`; component-level work anywhere, including `website/`, goes to hallmark's Component-scope flow. tasteskill has no component path at all, and hallmark's pre-flight adopts existing tokens instead of inventing them. `web/` and `admin/` remain hallmark's entirely, at every scope.
 
@@ -309,9 +317,22 @@ Note the overlap with impeccable's `/animate`: `/animate` proposes motion, `emil
 
 Order: intent settles what the surface is for → hallmark decides its structure → impeccable's references inform the specifics and its commands critique/polish/audit the result → emil's skills decide and implement the motion. Skip intent for a purely visual change to something whose purpose is already settled; don't skip it when the thing itself is new.
 
+### Once per project
+
+Four of these carry project state, and each one silently reverts to its stock defaults if the setup step is skipped. [`project-init`](.claude/skills/project-init/SKILL.md) runs them on a fresh copy; on an inherited project, check them before trusting a design gate.
+
+| Step | Establishes | Cost of skipping |
+|---|---|---|
+| `npx skills experimental_install` | Exactly the pinned set in [skills-lock.json](skills-lock.json) | `npx skills add <repo>` instead installs whole repos, re-adding every skill this document explains was cut — including tasteskill's theme presets and intent's duplicate planners. |
+| `/teach-impeccable` | impeccable knows the token lock and the density rules | Its passes run stock, which lean louder and more colorful than a dense productivity tool wants. |
+| `intent` in `context` mode | The project context document every other intent skill reads | `journey`, `organize`, and `articulate` each re-derive the audience and the stakes independently, and disagree. |
+| A written dial baseline for `website/` | `design-taste-frontend`'s `DESIGN_VARIANCE` / `MOTION_INTENSITY` / `VISUAL_DENSITY`, plus the accent and type family it may assume | Its § 0 re-infers all three from the brief on every invocation, so two marketing pages built a week apart don't match. Record them in `website/`'s own notes and hand them to the skill instead of letting it guess. |
+
+Nothing else needs initializing. Hallmark's pre-flight re-reads whatever tokens it finds on every run, and emil's four skills carry no project state at all. `brandkit` is the one skill whose natural slot is *before* project init — it decides a brand that doesn't exist yet, and `website/`'s tokens should be written from its output rather than the reverse.
+
 ### When skills disagree
 
-Ten skills from four authors will contradict each other. These are the conflicts that actually come up, audited against the installed skill text, with the resolution for this project. When a skill says something not covered here, this repo's docs win.
+Fourteen pinned skills plus two plugins, from five authors, will contradict each other. These are the conflicts that actually come up, audited against the installed skill text, with the resolution for this project. When a skill says something not covered here, this repo's docs win.
 
 | Conflict | Resolution |
 |---|---|
@@ -326,6 +347,7 @@ Ten skills from four authors will contradict each other. These are the conflicts
 | **Copy, twice.** `articulate` designs product words; [LANGUAGE_PATTERNS.md](LANGUAGE_PATTERNS.md) constrains voice. | **They stack.** `articulate` decides what a label, error, or empty state needs to *do*; LANGUAGE_PATTERNS decides how it's allowed to *sound*. The banned words and filler openers win over any phrasing `articulate` proposes. |
 | **Accessibility, three times.** `include` (design discipline), hallmark's a11y gate (structural), `/audit` (technical). | **Sequential, not redundant** — `include` before the design exists, hallmark's gate while it's built, `/audit` after. If you only get one, `/audit` catches the most regressions. |
 | **IA, twice.** `organize` and `/critique` both examine hierarchy. | **`organize` is system-level** (navigation, taxonomy, findability across surfaces); **`/critique` is surface-level** (is the clearest thing on this screen the most important thing). |
+| **Redesign, twice.** `redesign-existing-projects` and `design-taste-frontend` § 11 both audit an existing site and upgrade it. Both are tasteskill's; only the second is pinned. | **`design-taste-frontend` § 11 wins, and only in `website/`.** It detects preserve-vs-overhaul mode, extracts brand tokens before recoloring, treats SEO migration as the top risk, and names what never changes silently (slugs, nav labels, form field names). `redesign-existing-projects` opens by replacing the font and collapsing to one accent color, which is hard stop #4 in `web/`/`admin/` and needless risk in `website/`. Don't invoke it anywhere. |
 
 ### The set is not MECE, deliberately
 
@@ -338,6 +360,8 @@ Skills are selected by description match, not navigated as a taxonomy, so some r
 | `wireframe` / `hallmark` | **Fidelity.** `wireframe` is pre-visual anatomy for a surface that doesn't exist; `hallmark` is the rendered structure and owns every gate. This ordering is imposed here — neither skill states it. |
 | `find-animation-opportunities` / `emil-design-eng` | **Sweep vs element.** FAO scans a whole surface for where motion would earn its place; emil decides and implements per element. Emil carries its own "should this animate?" framework, so for a single element it is enough on its own. |
 | `include` / hallmark / `/audit` | **Design-time, build-time, check-time** accessibility, in that order. If you only run one, `/audit` catches the most regressions. |
+| `imagegen-frontend-web` / `design-taste-frontend` | **Comp vs code.** imagegen produces reference images and writes no code; tasteskill writes the page. If the direction for a `website/` page is unsettled, comps first, then build. If it's settled, skip straight to tasteskill — a comp pass on a decided page is just latency. |
+| `brandkit` / everything else | **Outside the loop.** brandkit designs a brand that doesn't exist yet; every other design skill here assumes tokens already exist. If it fires after `website/`'s tokens are written, that's a misfire. |
 
 And the gaps, so "no skill owns this" is a known fact rather than a surprise. Nothing in the skill layer covers **data and schema design, API design, backend or query performance** (impeccable's `/optimize` is explicitly frontend — loading, rendering, images, bundle size), **security review beyond `test:tenancy`**, **agent and prompt design**, or **observability**. Those are owned by the conventions above and by the subagents in `.claude/agents/` — reach for `nextjs-frontend-expert` and `mastra-workflow-architect` there, not for a design skill.
 

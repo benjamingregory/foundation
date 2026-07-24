@@ -24,8 +24,10 @@ Split by altitude, and by *when in the loop* they fire — see [CLAUDE.md § How
 | **`emil-design-eng`** | G6 | *How it moves* — animation, transitions, hover/press feedback, popovers, drawers, toasts, gesture handling. | Deciding page structure or what a section contains. |
 | **`find-animation-opportunities`** | G6, first | Deciding where motion earns its place — and what to leave still. | Implementing the motion once decided. |
 | **`review-animations`** | G8 | A strict pass over motion that already shipped. | Anything before the motion exists. |
-| **`design-taste-frontend`** | G4, `website/` only | Page-level marketing work. Its own scope excludes dashboards, product UI, admin panels, and data tables — never invoke it in `web/` or `admin/`. | Components anywhere — it has no component path. That's hallmark. |
+| **`design-taste-frontend`** | G4, `website/` only | Page-level marketing work, new or redesigned — its § 11 owns `website/` redesigns too. Its own scope excludes dashboards, product UI, admin panels, and data tables — never invoke it in `web/` or `admin/`. | Components anywhere — it has no component path. That's hallmark. |
 | **`pick-ui-library`** | G5 | Choosing a UI dependency, after checking `components/ui/` and finding nothing that fits. | Reaching past a Base UI or shadcn primitive that already exists. |
+
+`design-taste-frontend` has three siblings from the same repo that are commonly installed user-level and are **not** part of this loop: `brandkit` (a pre-project brand exercise, before `website/`'s tokens exist), `imagegen-frontend-web` (optional reference comps for an unsettled `website/` page, image-generation tool required), and `redesign-existing-projects` (never — it opens by replacing the font and collapsing to one accent color). See CLAUDE.md § The tasteskill family.
 
 Most UI tasks run intent (if new) → hallmark → build → impeccable → emil. All of them defer to this document where they conflict.
 
