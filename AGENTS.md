@@ -50,6 +50,8 @@ Tracks skip differently: **bug** is G0 → systematic-debugging → G5 → G7 �
 
 **Skills are installed, not vendored.** [skills-lock.json](skills-lock.json) pins each by source and content hash; `npx skills add` writes to `.agents/skills/` and symlinks into `.claude/skills/`, both gitignored. `project-init` runs the installs and is itself the only vendored skill. See [CLAUDE.md § Design & Copy](CLAUDE.md) for what each one owns.
 
+**When design skills disagree**, CLAUDE.md § When skills disagree is the tiebreaker — it audits the installed skill text against this project's constraints. The four that bite most often: emil's motion sequence beats impeccable's `/animate`; any `framer-motion` import in a skill example gets rewritten to `motion/react`; CSS is for state changes only, Motion owns entry/exit/morph/gesture; and `/colorize`, `/bolder`, `/delight` are `website/`-only because `web/` and `admin/` are token-locked and deliberately quiet.
+
 Specs: `docs/superpowers/specs/`. Plans: `docs/superpowers/plans/`. Worked example: this skeleton's own [design spec](docs/superpowers/specs/2026-07-22-foundation-skeleton-design.md) and [implementation plan](docs/superpowers/plans/2026-07-22-foundation-skeleton.md). The subagent-driven-development execution ledger lives in `.superpowers/sdd/` — gitignored scratch, not a deliverable.
 
 ## Non-Interactive Shell Commands

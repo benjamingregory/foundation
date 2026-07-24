@@ -289,6 +289,18 @@ The skill's examples often show CSS — translate the principles into Motion equ
 
 **Tailwind hover utilities are still fine.** `hover:bg-muted/50`, `hover:shadow-sm`, `hover:border-border` are state changes, not animations — keep using them. The Motion rule applies to anything you'd otherwise express as a keyframe or JS-driven CSS-transition for entry/exit/morph behavior.
 
+**The split is by kind, not by size.** `pick-ui-library` says a simple hover or fade doesn't need a motion library. Half right: a hover *state* doesn't, but a fade with an exit does — `AnimatePresence` has to own the unmount, and an element driven by both CSS transitions and Motion is where jank comes from. State changes stay CSS; entry, exit, morph, and gesture go through Motion however trivial they look.
+
+### Spring configuration
+
+Use the named springs in [web/lib/motion.ts](web/lib/motion.ts) — `spring.snap`, `spring.smooth`, `spring.soft`, `spring.pop`, `spring.panel`. They're `{ stiffness, damping }`; `emil-design-eng` recommends the `{ duration, bounce }` form as easier to reason about, and it is, but a codebase carrying both conventions is worse than either. Add a new named spring to the token file rather than inlining a config.
+
+Springs are for **gesture, drag, and interruptible** motion, plus deliberate decorative touches. Discrete UI transitions — dropdowns, tooltips, dialogs — use `duration` + `ease` from the same file. `apple-design` reads as spring-first because its subject is gesture-driven surfaces; scoped that way it agrees with emil rather than contradicting him.
+
+### Translucency and materials
+
+`apple-design` § 12 treats translucent materials as a hierarchy signal. **Use it sparingly here.** This is a dense productivity tool with Linear and Raycast as reference apps, not a consumer OS surface: translucency over a data-dense background costs legibility, and legibility is the whole point of § 1. Backdrop blur is acceptable on a modal scrim or a floating command surface, where there's a real depth relationship to convey. It is not a default treatment for cards, sidebars, or table rows. Apple's own rule holds regardless — never stack one translucent surface on another.
+
 **Exception, deliberate:** [components/ui/skeleton.tsx](web/components/ui/skeleton.tsx) is CSS-only on purpose — it sits on the critical path of nearly every route's loading state, and pulling Motion into that path would ship the whole animation library on the first paint of a route that hasn't loaded anything yet. Don't "fix" it to use Motion; don't use it as precedent for other components.
 
 ### Carry over from the skill (apply via Motion)
@@ -343,6 +355,8 @@ Before shipping any UI:
 - [ ] G5: Did I check `components/ui/` (and run `pick-ui-library`) before adding a UI dependency?
 - [ ] G6: Did I run `/critique` → `/polish`, then `find-animation-opportunities` → `emil-design-eng` for any motion?
 - [ ] G8: Did I run `/design-review` against a live server, and `review-animations` if motion changed?
+- [ ] Did any skill example bring in a `framer-motion` import? (emil's `useSpring` sample does — rewrite to `motion/react`.)
+- [ ] Did I stay out of `/colorize`, `/bolder`, and `/delight` in `web/` and `admin/`?
 - [ ] Does every color and font reference a token — no inline hex / OKLCH / `font-family`?
 - [ ] Are all 8 states covered on interactive components (default, hover, focus-visible, active, disabled, loading, error, success)?
 - [ ] Is every number, count, and quote real — nothing invented for the layout?

@@ -263,16 +263,20 @@ Four altitudes of design skill — this is the depth behind gates **G1**, **G4**
 
 **Hallmark is required for UI work, not a nicety** — gate G4. Invoke the `hallmark` skill before building a new surface, redesigning an existing one, or auditing UI you didn't write — it enforces structural variety, honest copy (no fabricated metrics or testimonials), locked design tokens, no re-drawn browser/phone chrome, and mobile verification at 320/375/414/768px. It is the structural gate: what goes where, and whether the result reads as generic.
 
-**Impeccable is the design vocabulary and the targeted-pass toolkit** — gate G6. Its `frontend-design` skill carries seven reference domains — typography, color-and-contrast (OKLCH, tinted neutrals, dark mode), spatial design, motion, interaction, responsive, and UX writing — and is where to look for the *why* behind a specific decision. Its commands drive focused passes once a surface exists, and they are not interchangeable:
+**Impeccable is the design vocabulary and the targeted-pass toolkit** — gate G6. Its `frontend-design` skill carries seven reference domains — typography, color-and-contrast (OKLCH, tinted neutrals, dark mode), spatial design, motion, interaction, responsive, and UX writing — and is where to look for the *why* behind a specific decision. It ships 17 more user-invokable skills; they are **not** interchangeable, and three of them actively fight this project's constraints.
 
-| Command | Asks | Run it when |
+| Skill | Use at | Notes |
 |---|---|---|
-| `/critique` | Is the hierarchy right? Is the clearest thing the most important thing? | First, as soon as the surface is functional — before any detail work, since a critique finding can invalidate it |
-| `/polish` | Is the detail right? Spacing, alignment, states, edge cases | After critique findings are fixed, before review |
-| `/animate` | Does it move well? | Last, on a settled surface |
-| `/audit` | Does it hold up technically? a11y, performance, responsive | Before review, and any time you inherit UI you didn't write |
+| `/critique` | G6, first | Hierarchy, information architecture, clarity. Run before detail work — a critique finding can invalidate it. |
+| `/polish` | G6, after critique fixes | Alignment, spacing, consistency, the pre-ship detail pass. |
+| `/audit` | G7/G8 | a11y, performance, theming, responsive, with severity ratings. Also whenever you inherit UI you didn't write. |
+| `/distill`, `/quieter`, `/normalize` | G6, as needed | Removing complexity, toning down, making things consistent. These pull the same direction as [DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md) — reach for them freely. |
+| `/adapt`, `/clarify`, `/harden`, `/optimize` | G6/G7 | Responsive, copy clarity, edge cases, performance. |
+| `/animate` | **Don't** — use emil's sequence | Overlaps `find-animation-opportunities` + `emil-design-eng`, which are the motion authority here. See § When skills disagree. |
+| `/colorize` | **`website/` only** | Its purpose is adding new color. In `web/`/`admin/` that breaks the token lock. |
+| `/bolder`, `/delight` | **`website/` only** | They amplify visual interest. This is a dense productivity tool — `/distill` and `/quieter` are the right direction here. |
 
-Run `/teach-impeccable` once per project to record its design context.
+Run `/teach-impeccable` once per project so its passes know the token lock and the density rules; without it, the defaults above bite harder.
 
 **Emil Kowalski's skills own motion and UI taste** — seven of them, installed together with `npx skills add emilkowalski/skills` ([emilkowalski/skills](https://github.com/emilkowalski/skills), MIT). They exist because agents reliably pick the wrong easing and hand-roll primitives that already exist; each one names the specific mistakes and the fix.
 
@@ -289,6 +293,23 @@ Run `/teach-impeccable` once per project to record its design context.
 Note the overlap with impeccable's `/animate`: `/animate` proposes motion, `emil-design-eng` implements it against this project's Motion conventions (`motion/react`, never `framer-motion`). Running both is fine; running neither is not.
 
 Order: intent settles what the surface is for → hallmark decides its structure → impeccable's references inform the specifics and its commands critique/polish/audit the result → emil's skills decide and implement the motion. Skip intent for a purely visual change to something whose purpose is already settled; don't skip it when the thing itself is new.
+
+### When skills disagree
+
+Ten skills from four authors will contradict each other. These are the conflicts that actually come up, audited against the installed skill text, with the resolution for this project. When a skill says something not covered here, this repo's docs win.
+
+| Conflict | Resolution |
+|---|---|
+| **Motion authority.** Impeccable's `/animate` and emil's motion skills both want to add animation. | **Emil wins.** Run `find-animation-opportunities` → `emil-design-eng` → `review-animations`. Skip `/animate`. Emil's sequence is the only one that starts by deciding what to *leave still*, which is what keeps animation creep out of a dense tool. |
+| **`framer-motion` in skill examples.** `emil-design-eng` imports `useSpring` from `'framer-motion'`; `pick-ui-library` and `apple-design` both call the library "motion (Framer Motion)". | **Always rewrite the import to `motion/react`.** The package was renamed; the old name still resolves and installing it alongside `motion` gives you two `AnimatePresence` contexts that can't coordinate exits. This is a hard stop, and skill examples are the most likely way to trip it. |
+| **CSS vs Motion.** `pick-ui-library` says a simple hover or fade doesn't need a library and plain CSS is right; `apple-design` gives CSS `transition` examples. [DESIGN_PRINCIPLES.md](DESIGN_PRINCIPLES.md) says use Motion for new interactive animation. | **Split by kind, not by size.** Tailwind state utilities (`hover:bg-muted/50`, `:active` color changes) stay CSS — they're state changes. Anything with entry, exit, morph, or gesture goes through Motion, however simple, because exit animations need `AnimatePresence` and mixing systems on the same element is what produces jank. `components/ui/skeleton.tsx` is the deliberate CSS-only exception. |
+| **Springs vs durations.** `apple-design` treats springs as the core tool; `emil-design-eng` scopes them to drag, gesture, interruptible, and decorative motion. | **Emil's scoping.** Springs for gesture and interruption; `duration` + `ease` from [web/lib/motion.ts](web/lib/motion.ts) for discrete UI transitions. Apple's spring case is about gesture-driven surfaces, so the two agree once scope is stated. |
+| **Spring config shape.** `emil-design-eng` recommends `{ duration, bounce }`; `web/lib/motion.ts` uses `{ stiffness, damping }`. | **Use the project's named springs** (`spring.snap`, `spring.smooth`, `spring.panel`, …). Both forms are valid; a codebase with both is not. |
+| **Color and type.** `/colorize` exists to add color. `apple-design` § 15 prescribes size-specific letter-spacing. hallmark's default flow picks a palette and font pairing. | **The token lock overrides all three in `web/` and `admin/`.** Structure, spacing, hierarchy, and motion are theirs to contribute; palette, `font-family`, and inline color values are not. Tracking values are a legitimate contribution — lift them into globals.css as tokens rather than sprinkling `letter-spacing` inline. `website/` runs the full flow. |
+| **Loud vs quiet.** `/bolder` and `/delight` amplify; DESIGN_PRINCIPLES.md's core philosophy is focus and restraint, with Linear and Raycast as reference apps. | **Quiet wins in `web/` and `admin/`** — `/distill`, `/quieter`, and `/normalize` are the aligned passes. `/bolder` and `/delight` belong to `website/`. |
+| **Three review passes.** `/audit`, `review-animations`, and `/design-review` all review a finished surface. | **They have different eyes; run all three when the change warrants it.** `/audit` is static analysis (a11y, performance, theming). `review-animations` reads motion code against emil's standards. `/design-review` drives a real browser at four viewports and is the only one that sees what actually renders. |
+
+Two clean results worth recording. Emil's seven skills make **zero** palette, font, or type-scale claims, so they cannot break the token lock. And their motion numbers are already this project's numbers: `ease.out = [0.23, 1, 0.32, 1]`, `ease.inOut = [0.77, 0, 0.175, 1]`, `ease.drawer = [0.32, 0.72, 0, 1]` in [web/lib/motion.ts](web/lib/motion.ts) are emil's `--ease-out` / `--ease-in-out` / `--ease-drawer` exactly; `tap = { scale: 0.97 }` is his press-feedback rule; every duration token is under his 300ms ceiling; `stagger` at 40ms sits inside his 30–80ms band. Following emil verbatim produces token-consistent code here. (`globals.css` carries the first two as `--ease-out-strong` / `--ease-in-out-strong` for CSS consumers; the drawer curve is Motion-only.)
 
 **Design review is a separate, later gate** (G8) and needs a live environment: start the dev server, then run `/design-review` or dispatch the `design-review` subagent. It drives a real browser through the change at 320/375/414/768px and reports what it saw — it is not a substitute for G4 or G6, which happen before the code is written and before it's finished, respectively.
 
