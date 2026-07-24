@@ -1,0 +1,4 @@
+{
+  "crons": [],
+  "//": "No scheduled routes yet. To add one: create app/api/cron/<name>/route.ts that checks `req.headers.get(\"authorization\") === `Bearer ${process.env.CRON_SECRET}`` before doing any work (see CRON_SECRET in .env.example — Vercel sends that header on every cron invocation), then add an entry here, e.g. { \"path\": \"/api/cron/<name>\", \"schedule\": \"0 5 * * *\" }. (vercel.json is strict JSON — no native comment syntax — so this is a documentation-only key; Vercel ignores unrecognized top-level fields.)"
+}

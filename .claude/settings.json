@@ -1,0 +1,77 @@
+{
+  "hooks": {
+    "PreCompact": [
+      {
+        "hooks": [
+          {
+            "command": "bd prime",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ],
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "command": "bd prime",
+            "type": "command"
+          }
+        ],
+        "matcher": ""
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Bash(corepack pnpm dev:*)",
+      "Bash(corepack pnpm build:*)",
+      "Bash(corepack pnpm start:*)",
+      "Bash(corepack pnpm lint:*)",
+      "Bash(corepack pnpm typecheck:*)",
+      "Bash(corepack pnpm test:*)",
+      "Bash(corepack pnpm doctor:*)",
+      "Bash(corepack pnpm install:*)",
+      "Bash(corepack pnpm db:generate:*)",
+      "Bash(corepack pnpm db:migrate:*)",
+      "Bash(corepack pnpm check:drift:*)",
+      "Bash(corepack pnpm -v)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git show:*)",
+      "Bash(git blame:*)",
+      "Bash(git branch:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git checkout:*)",
+      "Bash(git fetch:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)",
+      "Bash(git remote:*)",
+      "Bash(gh pr view:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr create:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(gh issue view:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh repo view:*)",
+      "Bash(gh api:*)",
+      "Bash(tsx:*)",
+      "Bash(npx tsx:*)",
+      "Bash(drizzle-kit:*)",
+      "Bash(npx drizzle-kit:*)",
+      "Bash(node -e:*)",
+      "Bash(node --version)",
+      "Bash(ls:*)",
+      "Bash(cat:*)",
+      "Bash(grep:*)",
+      "Bash(rg:*)",
+      "Bash(find:*)",
+      "Bash(head:*)",
+      "Bash(tail:*)",
+      "Bash(wc:*)"
+    ]
+  }
+}

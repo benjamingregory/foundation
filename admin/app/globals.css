@@ -1,0 +1,69 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Deliberately minimal relative to web/app/globals.css: admin is an internal
+ * ops tool, not brand surface, so this skips web fonts and the light-mode
+ * branch and locks to dark. Tokens are lifted verbatim from web's own dark
+ * values (not a new palette) — only the subset components/ui/{table,button,
+ * badge}.tsx actually reference.
+ */
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  --text-xs-plus: 0.8rem;
+  --text-xs-plus--line-height: 1.25rem;
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+:root {
+  --background: oklch(0.16 0.008 210);
+  --foreground: oklch(0.97 0.004 200);
+  --card: oklch(0.21 0.01 210);
+  --card-foreground: oklch(0.97 0.004 200);
+  --primary: oklch(0.8 0.11 195);
+  --primary-foreground: oklch(0.18 0.02 210);
+  --secondary: oklch(0.27 0.01 210);
+  --secondary-foreground: oklch(0.97 0.004 200);
+  --muted: oklch(0.27 0.01 210);
+  --muted-foreground: oklch(0.72 0.015 210);
+  --accent: oklch(0.27 0.012 210);
+  --accent-foreground: oklch(0.97 0.004 200);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.95 0.015 210 / 12%);
+  --input: oklch(0.95 0.015 210 / 16%);
+  --ring: oklch(0.65 0.09 195);
+  --radius: 0.625rem;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  button:not(:disabled):not([aria-disabled="true"]),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}

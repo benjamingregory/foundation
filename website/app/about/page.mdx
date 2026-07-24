@@ -1,0 +1,34 @@
+export const metadata = {
+  title: "About",
+  description: "What foundation wires together before you write a feature.",
+};
+
+<article className="mx-auto flex max-w-2xl flex-col gap-6 px-6 py-20 sm:py-28">
+
+# About foundation
+
+foundation is a Next.js starter. It exists so the first stretch of a new
+project (auth, a database, an agent runtime, billing, email) is already
+written, tested, and boring.
+
+## What is wired in
+
+- **Auth**: Supabase SSR cookies, plus a bearer-token path for scripts and cron jobs.
+- **Database**: Postgres through Drizzle, with tenancy enforced by a `userId` filter on every query.
+- **Agents**: Mastra orchestrates a chat agent backed by Anthropic Claude.
+- **Billing**: A Stripe checkout and webhook path, gated behind a kill switch.
+- **Email**: Resend sends transactional mail through a shared template shell.
+
+## What this app is not
+
+This `website/` app is the marketing shell, not the product. It has its own
+`package.json`, its own theme, and no import from the product app. It ships
+on its own schedule, separate from the product app&rsquo;s release.
+
+## Reading the code
+
+Start at `app/layout.tsx`, then `app/page.tsx`. The contact form on the
+homepage routes through a server action in `actions/contact-action.ts`. Read
+that file next if you are wiring your own inbox.
+
+</article>

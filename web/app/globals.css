@@ -1,0 +1,144 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --font-sans: var(--font-instrument-sans);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-newsreader);
+  --font-serif: var(--font-newsreader);
+  /* Wordmark only — not for body, headings, or labels; those stay on
+     --font-sans and --font-heading. */
+  --font-wordmark: var(--font-host-grotesk);
+  --color-ring: var(--ring);
+  --color-input: var(--input);
+  --color-border: var(--border);
+  --color-destructive: var(--destructive);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-accent: var(--accent);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-muted: var(--muted);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-secondary: var(--secondary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary: var(--primary);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-popover: var(--popover);
+  --color-card-foreground: var(--card-foreground);
+  --color-card: var(--card);
+  --radius-sm: calc(var(--radius) * 0.6);
+  --radius-md: calc(var(--radius) * 0.8);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) * 1.4);
+  --radius-2xl: calc(var(--radius) * 1.8);
+  --radius-3xl: calc(var(--radius) * 2.2);
+  --radius-4xl: calc(var(--radius) * 2.6);
+  /* Named micro-type steps. Replaces arbitrary text-[9px]/[10px]/[11px]
+     one-offs; nothing should render below 10px, so 9px rounds up to 3xs.
+     Arbitrary `text-[Npx]` values are banned — if a size is missing, add a
+     token here instead. */
+  --text-2xs: 0.6875rem;
+  --text-2xs--line-height: 1rem;
+  --text-3xs: 0.625rem;
+  --text-3xs--line-height: 0.875rem;
+  /* Between xs (12px) and sm (14px) — the compact-control size the sm button
+     variant carries. */
+  --text-xs-plus: 0.8rem;
+  --text-xs-plus--line-height: 1.25rem;
+  /* Strong custom easing curves — the built-in named easings (ease-out,
+     ease-in-out) are too weak for UI polish. */
+  --ease-out-strong: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out-strong: cubic-bezier(0.77, 0, 0.175, 1);
+  /* Skeleton loading pulse. CSS-only (see components/ui/skeleton.tsx) so the
+     universal loading state — every loading.tsx and Suspense fallback — ships
+     zero JS instead of pulling motion onto the critical path. Pair with the
+     `motion-reduce:animate-none` variant to honor prefers-reduced-motion. */
+  --animate-skeleton: skeleton-pulse 1.6s ease-in-out infinite;
+}
+
+@keyframes skeleton-pulse {
+  0%,
+  100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/*
+ * Light `:root` + dark `.dark` scopes, same var names in both — no new vars,
+ * no new palette. Both mirror the same hue architecture: neutrals tinted
+ * toward hue 210 (cool graphite), the teal accent at hue 195, destructive at
+ * hue ~22. Light inverts the lightness relationships (dark surfaces get
+ * lighter as they elevate off a near-black base; light surfaces get lighter
+ * still — toward white — as they elevate off an off-white base) rather than
+ * inventing a new hue set.
+ */
+:root {
+  --background: oklch(0.97 0.006 210);
+  --foreground: oklch(0.2 0.012 200);
+  --card: oklch(0.995 0.003 210);
+  --card-foreground: oklch(0.2 0.012 200);
+  --popover: oklch(0.995 0.003 210);
+  --popover-foreground: oklch(0.2 0.012 200);
+  --primary: oklch(0.5 0.13 195);
+  --primary-foreground: oklch(0.98 0.006 210);
+  --secondary: oklch(0.93 0.01 210);
+  --secondary-foreground: oklch(0.2 0.012 200);
+  --muted: oklch(0.93 0.01 210);
+  --muted-foreground: oklch(0.42 0.015 210);
+  --accent: oklch(0.92 0.012 210);
+  --accent-foreground: oklch(0.2 0.012 200);
+  --destructive: oklch(0.577 0.245 22.216);
+  --border: oklch(0.2 0.02 210 / 10%);
+  --input: oklch(0.2 0.02 210 / 14%);
+  --ring: oklch(0.55 0.1 195);
+  --radius: 0.625rem;
+}
+
+.dark {
+  --background: oklch(0.16 0.008 210);
+  --foreground: oklch(0.97 0.004 200);
+  --card: oklch(0.21 0.01 210);
+  --card-foreground: oklch(0.97 0.004 200);
+  --popover: oklch(0.21 0.01 210);
+  --popover-foreground: oklch(0.97 0.004 200);
+  --primary: oklch(0.8 0.11 195);
+  --primary-foreground: oklch(0.18 0.02 210);
+  --secondary: oklch(0.27 0.01 210);
+  --secondary-foreground: oklch(0.97 0.004 200);
+  --muted: oklch(0.27 0.01 210);
+  --muted-foreground: oklch(0.72 0.015 210);
+  --accent: oklch(0.27 0.012 210);
+  --accent-foreground: oklch(0.97 0.004 200);
+  --destructive: oklch(0.704 0.191 22.216);
+  --border: oklch(0.95 0.015 210 / 12%);
+  --input: oklch(0.95 0.015 210 / 16%);
+  --ring: oklch(0.65 0.09 195);
+}
+
+@layer base {
+  * {
+    /* Full opacity, not outline-ring/50: at 50% alpha over --background the
+       default UA focus ring measures well under the 3:1 contrast WCAG
+       2.4.11 / 1.4.11 require of a focus indicator. */
+    @apply border-border outline-ring;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+  html {
+    @apply font-sans;
+  }
+  /* Tailwind v4's preflight leaves buttons on the default arrow cursor;
+     re-add pointer for anything clickable. Lives in the base layer, so an
+     explicit cursor-* utility still wins. */
+  button:not(:disabled):not([aria-disabled="true"]),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+}

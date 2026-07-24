@@ -1,0 +1,10 @@
+allowBuilds:
+  core-js: true
+  esbuild: true
+  inngest-cli: true
+  protobufjs: true
+  sharp: true
+  unrs-resolver: true
+minimumReleaseAgeExclude:
+  - '@mastra/pg@1.17.0'
+  - '@mastra/core@1.52.1'

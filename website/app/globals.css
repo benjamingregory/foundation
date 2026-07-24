@@ -1,0 +1,58 @@
+@import "tailwindcss";
+
+/* next-themes toggles a `.dark` class on <html>; Tailwind v4's default
+   `dark:` variant is media-query-based, so it has to be repointed at the
+   class for that toggle to do anything. */
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-border: var(--border);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-ring: var(--ring);
+  --color-destructive: var(--destructive);
+}
+
+/*
+ * This app's own neutral token set — deliberately not the product app's
+ * locked palette (see CLAUDE.md). website/ has theme freedom; this is a
+ * plain starting point, not a locked system. Light `:root` and dark `.dark`
+ * share the same variable names so components never branch on theme.
+ */
+:root {
+  --background: oklch(0.99 0 0);
+  --foreground: oklch(0.19 0.01 260);
+  --surface: oklch(0.97 0.004 260);
+  --border: oklch(0.89 0.006 260);
+  --muted: oklch(0.95 0.005 260);
+  --muted-foreground: oklch(0.47 0.012 260);
+  --accent: oklch(0.55 0.16 260);
+  --accent-foreground: oklch(0.99 0 0);
+  --ring: oklch(0.55 0.16 260);
+  --destructive: oklch(0.55 0.19 25);
+}
+
+.dark {
+  --background: oklch(0.17 0.006 260);
+  --foreground: oklch(0.95 0.004 260);
+  --surface: oklch(0.21 0.007 260);
+  --border: oklch(0.29 0.009 260);
+  --muted: oklch(0.25 0.007 260);
+  --muted-foreground: oklch(0.66 0.012 260);
+  --accent: oklch(0.72 0.14 260);
+  --accent-foreground: oklch(0.15 0.01 260);
+  --ring: oklch(0.72 0.14 260);
+  --destructive: oklch(0.68 0.18 25);
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+}

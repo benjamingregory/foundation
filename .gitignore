@@ -1,0 +1,22 @@
+node_modules/
+.next/
+.env
+.env.local
+.env*.local
+*.log
+.DS_Store
+.claude/settings.local.json
+
+# Beads / Dolt files (added by bd init)
+.dolt/
+*.db
+.beads-credential-key
+
+# Design skills are installed, not vendored — see skills-lock.json and the
+# project-init skill. `npx skills add` writes the payload to .agents/skills/ and
+# symlinks it into .claude/skills/; keep both out of git so the skeleton stays
+# small and the pinned hash stays the single source of truth. project-init is
+# ours, so it stays tracked.
+.agents/
+.claude/skills/*
+!.claude/skills/project-init/
