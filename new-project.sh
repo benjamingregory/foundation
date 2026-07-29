@@ -174,8 +174,18 @@ if [ "$DO_SKILLS" -eq 1 ] && ! command -v npx >/dev/null 2>&1; then
 fi
 
 HAVE_BD=0
-if command -v bd >/dev/null 2>&1; then HAVE_BD=1; ok "bd (beads) available"
-else warn "bd not found — issue tracker will not be initialized"; fi
+if command -v bd >/dev/null 2>&1; then
+  HAVE_BD=1; ok "bd (beads) available"
+elif command -v brew >/dev/null 2>&1; then
+  warn "bd not found — installing via Homebrew (formula lives in homebrew-core)"
+  if brew install beads >/dev/null 2>&1 && command -v bd >/dev/null 2>&1; then
+    HAVE_BD=1; ok "bd (beads) installed"
+  else
+    warn "brew install beads failed — issue tracker will not be initialized"
+  fi
+else
+  warn "bd not found and no Homebrew to install it — issue tracker will not be initialized"
+fi
 
 # ---------------------------------------------------------------------------
 # Phase 1 — copy

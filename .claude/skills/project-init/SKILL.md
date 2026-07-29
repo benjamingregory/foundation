@@ -113,12 +113,9 @@ Ask before installing anything; skip silently if the user declines, but say whic
 
 ### 9a. Confirm the process layer
 
-These come with the skeleton or the user's Claude Code setup rather than an install here — verify, don't provision.
+**superpowers** comes with the user's Claude Code setup rather than an install here — verify, don't provision. If `superpowers:brainstorming` isn't available, say so: without it the project has no design or planning gate and work defaults to ad-hoc.
 
-| Tool | Owns | Verify |
-|---|---|---|
-| **superpowers** | Gates G2 (brainstorming), G3 (writing-plans), G5 (subagent-driven-development, TDD), G8 (code review), G9 (verification-before-completion) | A user-level plugin. If `superpowers:brainstorming` isn't available, say so — without it the project has no design or planning gate and work defaults to ad-hoc. |
-| **bd** (beads) | Gate G0 (intake) and the close | `bd ready` should run clean. `new-project.sh` already ran `bd init --prefix <name>`; if it didn't, run it now. |
+**bd** (beads) owns gate G0 (intake) and the close. `new-project.sh` Phase 0 checks for `bd` on PATH and, if missing, installs it via `brew install beads` (the formula lives in `homebrew-core`) before running `bd init --prefix <name>` in Phase 6. On a machine without Homebrew, that install is skipped and a warning is printed — verify it landed with `bd ready` (should run clean); if not, install `bd` by hand and run `bd init --prefix <name>` yourself.
 
 ### 9b. Install the design skills
 
